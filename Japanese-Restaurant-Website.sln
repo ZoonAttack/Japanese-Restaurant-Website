@@ -23,6 +23,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Jpanese restaurant ( Front-
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "59076"
+		SlnRelativePath = "..\..\..\..\OneDrive\Desktop\Jpanese restaurant ( Front-end)\Jpanese restaurant ( Front-end)\"
 	EndProjectSection
 EndProject
 Global
