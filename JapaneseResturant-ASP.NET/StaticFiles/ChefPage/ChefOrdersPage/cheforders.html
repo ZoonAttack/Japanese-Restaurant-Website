@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Management - Chef Dashboard</title>
+    <link rel="stylesheet" href="cheforders.css">
+</head>
+<body>
+    <!-- Fixed Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="https://static.tildacdn.info/tild6462-3531-4663-b161-656538663737/304.svg" alt="Bento Click">
+        </div>
+        <ul class="nav-links">
+            <li><a href="../ChefMenuItemsPage/chefmenuitems.html">Menu Items</a></li>
+            <li><a href="../ChefOrdersPage/cheforders.html" class="active">Orders</a></li>
+        </ul>
+        <button class="logout-btn" onclick="showLogoutConfirmation()">Log Out</button>
+    </nav>
+
+    <!-- Orders Container -->
+    <div class="orders-container">
+        <h1 class="page-title">Order Management</h1>
+        
+        <!-- Status Filter -->
+        <div class="status-filter">
+            <button class="status-btn active" onclick="filterOrders('all')">All Orders</button>
+            <button class="status-btn" onclick="filterOrders('pending')">Pending</button>
+            <button class="status-btn" onclick="filterOrders('preparing')">Preparing</button>
+            <button class="status-btn" onclick="filterOrders('ready')">Ready</button>
+            <button class="status-btn" onclick="filterOrders('completed')">Completed</button>
+        </div>
+        
+        <!-- Orders List -->
+        <div id="ordersList">
+            <!-- Orders will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Dialog -->
+    <div id="logoutConfirmationDialog" class="confirmation-dialog">
+        <div class="confirmation-content">
+            <div class="confirmation-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 7L15.59 8.41L18.17 11H8V13H18.17L15.59 15.58L17 17L22 12L17 7ZM4 5H12V3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H12V19H4V5Z" fill="#da0037"/>
+                </svg>
+            </div>
+            <h3 class="confirmation-title">Log Out</h3>
+            <p class="confirmation-message">Are you sure you want to log out? Any unsaved changes will be lost.</p>
+            <div class="confirmation-buttons">
+                <button id="cancelLogoutBtn" class="deny-btn">Cancel</button>
+                <button id="confirmLogoutBtn" class="confirm-btn">Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <script src="cheforders.js"></script>
+</body>
+</html>

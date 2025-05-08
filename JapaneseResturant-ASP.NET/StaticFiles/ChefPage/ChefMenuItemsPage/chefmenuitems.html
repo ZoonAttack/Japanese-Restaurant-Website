@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Chef Dashboard: Manage Your Menu</title>
+    <link rel="stylesheet" href="chefmenuitemspage.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="https://static.tildacdn.info/tild6462-3531-4663-b161-656538663737/304.svg" alt="Bento Click">
+        </div>
+        <div class="nav-links">
+            <a href="../ChefMenuItemsPage/chefmenuitems.html">Menu Items</a>
+            <a href="../ChefOrdersPage/cheforders.html">Orders</a>
+        </div>
+        <button class="logout-btn" onclick="showLogoutConfirmation()">Log Out</button>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="page-title">Edit Menu Items</h1>
+        
+        <!-- Menu Items Grid -->
+        <div class="menu-grid" id="menu-items">
+            <!-- Items will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Edit Popup -->
+    <div id="editPopup" class="edit-popup">
+        <div class="edit-popup-content">
+            <form id="editForm">
+                <input type="hidden" id="editItemId">
+                <div class="form-group">
+                    <label for="editItemName">Item Name</label>
+                    <input type="text" id="editItemName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editItemPrice">Price (EGP)</label>
+                    <input type="number" id="editItemPrice" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editItemDescription">Description</label>
+                    <textarea id="editItemDescription" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editItemImage">Image</label>
+                    <input type="file" id="editItemImage" class="form-control">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" onclick="closeEditPopup()">Cancel</button>
+                    <button type="submit" class="save-btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <div id="confirmationDialog" class="confirmation-dialog">
+        <div class="confirmation-content">
+            <div class="confirmation-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="#da0037"/>
+                    <path d="M12 17C12.5523 17 13 16.5523 13 16C13 15.4477 12.5523 15 12 15C11.4477 15 11 15.4477 11 16C11 16.5523 11.4477 17 12 17Z" fill="#da0037"/>
+                    <path d="M12 7C11.1716 7 10.5 7.67157 10.5 8.5V13C10.5 13.8284 11.1716 14.5 12 14.5C12.8284 14.5 13.5 13.8284 13.5 13V8.5C13.5 7.67157 12.8284 7 12 7Z" fill="#da0037"/>
+                </svg>
+            </div>
+            <h3 class="confirmation-title">Delete Menu Item</h3>
+            <p class="confirmation-message">This action cannot be undone. The item will be permanently removed from your menu.</p>
+            <div class="confirmation-buttons">
+                <button id="cancelDeleteBtn" class="deny-btn">Cancel</button>
+                <button id="confirmDeleteBtn" class="confirm-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Dialog -->
+    <div id="logoutConfirmationDialog" class="confirmation-dialog">
+        <div class="confirmation-content">
+            <div class="confirmation-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 7L15.59 8.41L18.17 11H8V13H18.17L15.59 15.58L17 17L22 12L17 7ZM4 5H12V3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H12V19H4V5Z" fill="#da0037"/>
+                </svg>
+            </div>
+            <h3 class="confirmation-title">Log Out</h3>
+            <p class="confirmation-message">Are you sure you want to log out? Any unsaved changes will be lost.</p>
+            <div class="confirmation-buttons">
+                <button id="cancelLogoutBtn" class="deny-btn">Cancel</button>
+                <button id="confirmLogoutBtn" class="confirm-btn">Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <script src="chefmenueitems.js"></script>
+</body>
+</html>

@@ -7,4 +7,8 @@
     <RootNamespace>JapaneseResturant_ASP.NET</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="StaticFiles\" />
+  </ItemGroup>
+
 </Project>
