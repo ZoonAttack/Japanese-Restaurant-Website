@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弁当クリック - Japanese Restaurant</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <header class="navbar">
+        <div class="container">
+            <div class="navbar-left">
+                <a href="#" class="logo">
+                    <img src="https://static.tildacdn.info/tild6462-3531-4663-b161-656538663737/304.svg" alt="弁当クリック" width="140">
+                </a>
+            </div>
+            <nav class="navbar-center">
+                <ul class="nav-list">
+                    <li><a href="#home" class="nav-link">Home</a></li>
+                    <li><a href="#menu" class="nav-link">Menu</a></li>
+                    <li><a href="../userOrders/userorders.html" class="nav-link">Orders</a></li>
+                </ul>
+            </nav>
+            <div class="navbar-right">
+                <div class="cart-icon" id="cartIcon">
+                    <div class="cart-icon-wrapper">
+                        <svg width="24" height="24" viewBox="0 0 64 64">
+                            <path fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" d="M44 18h10v45H10V18h10z"/>
+                            <path fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" d="M22 24V11c0-5.523 4.477-10 10-10s10 4.477 10 10v13"/>
+                        </svg>
+                        <div class="cart-counter" id="cartCounter">0</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="logoutBtn">Log Out</button>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+            <ul class="mobile-nav-list">
+                <li><a href="#home" class="mobile-nav-link">Home</a></li>
+                <li><a href="#menu" class="mobile-nav-link">Menu</a></li>
+                <li><a href="#orders" class="mobile-nav-link">Orders</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title"><span class="accent-color">弁当クリック</span></h1>
+            <p class="hero-subtitle">We make fresh and delicious Japanese food in E-JUST restaurant.</p>
+        </div>
+        <div class="scroll-down">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M7 10L12 15L17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Menu Title Section -->
+    <section class="menu-title">
+        <div class="container">
+            <h2 class="section-title"><span class="accent-color">Menu</span></h2>
+            <p class="section-subtitle">Only fresh products and original recipes from Japanese chefs</p>
+        </div>
+    </section>
+
+    <!-- Menu Items Section -->
+    <section class="menu-items" id="menu">
+        <div class="container">
+            <div class="menu-grid">
+                <!-- Menu items will be dynamically added here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h3>Your Cart</h3>
+                <button class="close-cart" id="closeCart">&times;</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <!-- Cart items will be dynamically added here -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cartTotal">EGP 0</span>
+                </div>
+                <button class="btn btn-primary btn-checkout" id="checkoutBtn">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal" id="logoutModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Logout</h3>
+                <button class="modal-close" id="closeLogoutModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to log out?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelLogout">Cancel</button>
+                <button class="btn btn-primary" id="confirmLogout">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    // Add this to your index.html page, just before the closing </body> tag
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        // Check if we should open the cart
+        if (localStorage.getItem("openCart") === "true") {
+          // Clear the flag
+          localStorage.removeItem("openCart");
+          
+          // Open the cart
+          // Replace this with your actual cart toggle function
+          const cartToggleButton = document.querySelector(".cart-toggle"); // Update this selector to match your cart button
+          if (cartToggleButton) {
+            cartToggleButton.click();
+          } else {
+            // If you have a different way to open the cart, use that instead
+            // For example, if you have a function called toggleCart()
+            if (typeof toggleCart === "function") {
+              toggleCart();
+            }
+          }
+        }
+      });
+    </script>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

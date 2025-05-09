@@ -1,0 +1,397 @@
+/* Reset and Base Styles */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f5f5;
+}
+
+/* Navigation */
+.navbar {
+    background-color: white;
+    height: 95px;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    box-sizing: border-box;
+}
+
+.logo img {
+    height: 50px;
+}
+
+.nav-links a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: black;
+    font-weight: 600;
+}
+
+.nav-links a:hover {
+    color: #da0037;
+}
+
+.logout-btn {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    background-color: #333;
+}
+
+/* Main Content */
+.main-content {
+    margin-top: 150px;
+    padding: 0 40px;
+}
+
+.page-title {
+    text-align: center;
+    color: #da0037;
+    font-size: 56px;
+    margin-bottom: 60px;
+}
+
+/* Menu Items Grid */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-bottom: 150px;
+}
+
+.menu-item {
+    background: white;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.menu-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.item-image {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+}
+
+.item-details {
+    padding: 20px;
+}
+
+.item-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+}
+
+.item-price {
+    font-size: 16px;
+    color: #333;
+    margin: 0 0 15px 0;
+}
+
+.item-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-btn, .delete-btn {
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    flex: 1;
+    transition: all 0.2s;
+}
+
+.edit-btn {
+    background-color: #da0037;
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #c00030;
+}
+
+.delete-btn {
+    background-color: #333;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #222;
+}
+
+/* Edit Popup */
+.edit-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-popup-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    animation: slideUp 0.3s ease-out;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    border-color: #da0037;
+    outline: none;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.save-btn, .cancel-btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.save-btn {
+    background-color: #da0037;
+    color: white;
+}
+
+.save-btn:hover {
+    background-color: #c00030;
+}
+
+.cancel-btn {
+    background-color: #f5f5f5;
+}
+
+.cancel-btn:hover {
+    background-color: #e5e5e5;
+}
+
+/* Confirmation Dialog */
+.confirmation-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1001;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.confirmation-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 380px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transform: translateY(20px);
+    opacity: 0;
+    animation: slideUp 0.25s ease-out 0.1s forwards;
+}
+
+.confirmation-icon {
+    font-size: 48px;
+    color: #da0037;
+    margin-bottom: 20px;
+}
+
+.confirmation-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.confirmation-message {
+    font-size: 15px;
+    margin-bottom: 25px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.confirmation-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.confirm-btn, .deny-btn {
+    padding: 10px 24px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s;
+    min-width: 100px;
+}
+
+.confirm-btn {
+    background-color: #da0037;
+    color: white;
+}
+
+.confirm-btn:hover {
+    background-color: #c00030;
+    transform: translateY(-1px);
+}
+
+.deny-btn {
+    background-color: white;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.deny-btn:hover {
+    background-color: #f5f5f5;
+    transform: translateY(-1px);
+}
+
+/* Notification */
+.notification {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 5px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    z-index: 1002;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    max-width: 80%;
+    text-align: center;
+}
+
+.notification.show {
+    opacity: 1;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to { 
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .navbar {
+        padding: 0 20px;
+        flex-direction: column;
+        height: auto;
+        padding: 15px;
+    }
+    
+    .nav-links {
+        margin: 15px 0;
+    }
+    
+    .main-content {
+        margin-top: 180px;
+    }
+    
+    .page-title {
+        font-size: 36px;
+    }
+    
+    .confirmation-content {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 28px;
+    }
+    
+    .form-actions, .confirmation-buttons {
+        flex-direction: column;
+    }
+    
+    .save-btn, .cancel-btn, .confirm-btn, .deny-btn {
+        width: 100%;
+    }
+}
