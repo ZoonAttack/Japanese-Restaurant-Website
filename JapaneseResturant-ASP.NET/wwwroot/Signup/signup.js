@@ -5,7 +5,8 @@
         name: document.getElementById("name").value,
         email: document.getElementById("email").value,
         password: document.getElementById("password").value
-    };
+        };
+
 
     const response = await fetch("/register", {
         method: "POST",

@@ -121,31 +121,6 @@
             </div>
         </div>
     </div>
-
-    // Add this to your index.html page, just before the closing </body> tag
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        // Check if we should open the cart
-        if (localStorage.getItem("openCart") === "true") {
-          // Clear the flag
-          localStorage.removeItem("openCart");
-          
-          // Open the cart
-          // Replace this with your actual cart toggle function
-          const cartToggleButton = document.querySelector(".cart-toggle"); // Update this selector to match your cart button
-          if (cartToggleButton) {
-            cartToggleButton.click();
-          } else {
-            // If you have a different way to open the cart, use that instead
-            // For example, if you have a function called toggleCart()
-            if (typeof toggleCart === "function") {
-              toggleCart();
-            }
-          }
-        }
-      });
-    </script>
-
-    <script src="dashboard.js"></script>
+    <script src="/UserPage/dashboard/dashboard.js"></script>
 </body>
 </html>

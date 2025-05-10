@@ -1,10 +1,9 @@
-﻿POST http://localhost:5267/signup
+﻿POST http://localhost:5267/login
 Content-Type: application/json
 
 {
-    "name": "rrr",
-    "email": "rr@gmail.com",
-    "password": "1234"
+    "email": "Boo@gmail.com",
+    "password": "Boo@2121"
 }
 
 ###
@@ -15,3 +14,6 @@ Content-Type: application/json
     "email": "rr@gmail.com",
     "password": "1234"
 }
+
+###
+GET http://localhost:5267/dashboard/getmenudata

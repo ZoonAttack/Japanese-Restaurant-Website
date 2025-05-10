@@ -1,5 +1,6 @@
-import { regenerateToken } from "/Modules/token.js";
-
+import { regenereateToken } from "/Modules/token.js";
+// Menu Items Data
+// Cart State
 let cart = [];
 
 // DOM Elements
@@ -24,40 +25,10 @@ const confirmLogout = document.getElementById('confirmLogout');
 
 // Initialize the page
 function init() {
-    renderMenuItems();
+    //getUserData();
+    getMenuData();
     setupEventListeners();
 }
-
-// Render menu items
-function renderMenuItems() {
-    menuGrid.innerHTML = '';
-    
-    menuItems.forEach(item => {
-        const menuItem = document.createElement('div');
-        menuItem.className = 'menu-item';
-        menuItem.innerHTML = `
-            <div class="menu-item-image" style="background-image: url('${item.image}')"></div>
-            <div class="menu-item-content">
-                <div class="menu-item-header">
-                    <h3 class="menu-item-title">${item.name}</h3>
-                    <p class="menu-item-price">EGP ${item.price}</p>
-                </div>
-                <button class="btn btn-primary btn-add-to-cart" data-id="${item.id}">Add to Cart</button>
-            </div>
-        `;
-        menuGrid.appendChild(menuItem);
-    });
-
-    // Add event listeners to "Add to Cart" buttons
-    const addToCartButtons = document.querySelectorAll('.btn-add-to-cart');
-    addToCartButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const itemId = parseInt(this.getAttribute('data-id'));
-            addToCart(itemId);
-        });
-    });
-}
-
 // Setup event listeners
 function setupEventListeners() {
     // Toggle cart modal
@@ -104,27 +75,21 @@ function setupEventListeners() {
 }
 
 // Add item to cart
-function addToCart(itemId)
-{
-    regenerateToken();
-
-    const response = await fetch("/dashboard/addtocart", {
-
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-
-
-        }, body: JSON.stringify(data),
-
-    });
-
-    if (response.ok) {
-        var responseBody = response.json();
-        responseBody.
-            window.location.replace("/UserPage/dashboard/dashboard.html")
+function addToCart(itemId) {
+    const item = menuItems.find(item => item.id === itemId);
+    
+    if (!item) return;
+    
+    const existingItem = cart.find(cartItem => cartItem.id === itemId);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({
+            ...item,
+            quantity: 1
+        });
     }
-    alert(response.text())
     
     updateCart();
 }
@@ -145,27 +110,20 @@ function removeFromCart(itemId) {
 }
 
 // Update cart UI
-async function updateCart()
-{
-
-    regenerateToken();
-
-    const response = await fetch("/dashboard/updatecart", {
-
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-
-
-        }
-    });
-
-    if (response.ok) {
-        var responseBody = response.json();
-        
-            window.location.replace("/UserPage/dashboard/dashboard.html")
-    }
-    alert(response.text())
+function updateCart() {
+    // Update cart counter
+    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    cartCounter.textContent = totalItems;
+    
+    // Update cart items
+    renderCartItems();
+    
+    // Update cart total
+    const total = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    cartTotal.textContent = `EGP ${total}`;
+    
+    // Save cart to localStorage
+    localStorage.setItem('cart', JSON.stringify(cart));
 }
 
 // Render cart items
@@ -277,10 +235,9 @@ function hideLogoutModal() {
 }
 
 // Handle logout confirmation
-function handleLogout() {
-    regenerateToken();
+async function handleLogout() {
     // Redirect to signin page
-    const response = await fetch("/login", {
+    const response = await fetch("/dashboard/logout", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -319,8 +276,7 @@ function loadCart() {
 }
 async function getUserData()
 {
-    regenerateToken();
-    const response = await fetch("/getuserdata", {
+    const response = await fetch("dashboard/getuserdata", {
         method: "GET",
         headers: {
             "Content-Type": "application/json"
@@ -340,8 +296,7 @@ async function getUserData()
 
 async function getMenuData()
 {
-    regenerateToken();
-    const response = await fetch("/getmenudata", {
+    const response = await fetch("dashboard/getmenudata", {
         method: "GET",
         headers: {
             "Content-Type": "application/json"
@@ -353,29 +308,31 @@ async function getMenuData()
 
     }
     else {
-
+        alert(response.text())
         const items = await response.json();
-        const menuGrid = document.querySelector(".menu-grid");
-
         items.forEach(item => {
             const itemDiv = document.createElement("div");
-            itemDiv.classList.add("menu-item"); // Optional styling class
-
+            itemDiv.className = 'menu-item';
             itemDiv.innerHTML = `
-            <img src="${item.imageUrl}" alt="${item.name}" class="menu-image" />
-            <h3>${item.name}</h3>
-            <p>${item.description}</p>
-            <span class="price">EGP ${item.price}</span>
+            <div class="menu-item-image" style="background-image: url('${item.image}')"></div>
+            <div class="menu-item-details">
+                <h3 class="menu-item-title">${item.name}</h3>
+                <p class="menu-item-price">EGP ${item.price}</p>
+                <button class="btn btn-add-to-cart" data-id="${item.id}">Add to Cart</button>
+            </div>
         `;
-
             menuGrid.appendChild(itemDiv);
+        });
+        document.querySelectorAll('.btn-add-to-cart').forEach(button => {
+            button.addEventListener('click', function () {
+                const itemId = parseInt(this.getAttribute('data-id'));
+                addToCart(itemId);
+            });
         });
     }
 }
-
 // Initialize the page
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", () => {
     init();
-    getUserData();
-    getMenuData();
+    loadCart();
 });
