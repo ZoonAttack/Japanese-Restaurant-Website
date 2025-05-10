@@ -20,9 +20,9 @@ namespace JapaneseRestaurantModel.Configurations
             builder.Property(x => x.TotalPrice).HasPrecision(6, 2);
 
             // Order <=N----1=> Customer
-            builder.HasOne(x => x.Customer)
+            builder.HasOne(x => x.User)
                 .WithMany(x => x.Orders)
-                .HasForeignKey(x => x.CustomerId)
+                .HasForeignKey(x => x.UserId)
                 .IsRequired();
         }
     }

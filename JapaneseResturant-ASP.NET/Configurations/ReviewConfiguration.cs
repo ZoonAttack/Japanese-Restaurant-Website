@@ -21,9 +21,9 @@ namespace JapaneseRestaurantModel.Configurations
                 .IsRequired();
 
             // Customer <-1---N=> Review
-            builder.HasOne(x => x.Customer)
+            builder.HasOne(x => x.User)
                 .WithMany(x => x.Reviews)
-                .HasForeignKey(x => x.CustomerId)
+                .HasForeignKey(x => x.UserId)
                 .IsRequired();
         }
     }

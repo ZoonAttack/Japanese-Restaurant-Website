@@ -1,6 +1,8 @@
 using JapaneseRestaurantModel.Data;
+using JapaneseRestaurantModel.Entities;
 using JapaneseResturant_ASP.NET.Endpoints;
 using JapaneseResturant_ASP.NET.Extentions;
+using Microsoft.AspNetCore.Identity;
 
 namespace JapaneseResturant_ASP.NET
 {
@@ -10,17 +12,32 @@ namespace JapaneseResturant_ASP.NET
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddAuthorization();
+            builder.Services.AddAuthentication()
+                .AddCookie(IdentityConstants
+                .ApplicationScheme)
+                .AddBearerToken(IdentityConstants.BearerScheme);
+
+            builder.Services.AddIdentityCore<User>()
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddApiEndpoints();
+            builder.Services.AddOpenApiDocument();
             var connstring = builder.Configuration.GetConnectionString("conn");
             builder.Services.AddSqlServer<AppDbContext>(connstring);
-            builder.Services.AddAntiforgery();
-            builder.Services.AddEndpointsApiExplorer();
             var app = builder.Build();
+            if (app.Environment.IsDevelopment())
+            {
+                await app.MigrateDb();
+                app.UseOpenApi();
+
+                app.UseSwaggerUi();
+            }
+
             app.UseStaticFiles();
 
-            app.UseAntiforgery();
             app.MapSignUpEndpoint();
             app.MapSignInEndpoint();
-            await app.MigrateDb();
+            app.MapIdentityApi<User>();
             app.Run();
         }
     }

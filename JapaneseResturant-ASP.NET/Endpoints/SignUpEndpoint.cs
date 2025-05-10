@@ -1,7 +1,9 @@
-﻿using JapaneseRestaurantModel.Data;
+﻿
+using JapaneseRestaurantModel.Data;
+using JapaneseRestaurantModel.Entities;
 using JapaneseResturant_ASP.NET.Dtos;
 using JapaneseResturant_ASP.NET.Mappers;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 
 namespace JapaneseResturant_ASP.NET.Endpoints
 {
@@ -11,15 +13,15 @@ namespace JapaneseResturant_ASP.NET.Endpoints
         public static void MapSignUpEndpoint(this WebApplication app)
         {
 
-
-            //POST 
-
-            app.MapPost("/signup", async ([FromBody] CreateCustomerDto createCustomerDto, AppDbContext dbContext) =>
+            app.MapPost("/signup",  async (SignUpDto dto,UserManager<User> userManager ,AppDbContext dbCOntext) =>
             {
-                await dbContext.Customers.AddAsync(createCustomerDto.ToEntity());
-                dbContext.SaveChanges();
-                return Results.Ok(createCustomerDto);
+            //Upload data to db 
+                User newUser = dto.ToEntity();
+                await userManager.CreateAsync(newUser, userManager.PasswordHasher.HashPassword(newUser, dto.Password));
+
+                return Results.Ok(dto); //Debugging
             });
+            
         }
     }
 }
