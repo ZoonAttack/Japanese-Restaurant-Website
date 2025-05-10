@@ -27,8 +27,6 @@ namespace JapaneseRestaurantModel.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-
-            modelBuilder.HasDefaultSchema("identity");
         }
     }
 }

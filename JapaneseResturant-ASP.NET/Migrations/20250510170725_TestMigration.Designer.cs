@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JapaneseResturant_ASP.NET.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250510154436_IdentityMigration")]
-    partial class IdentityMigration
+    [Migration("20250510170725_TestMigration")]
+    partial class TestMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

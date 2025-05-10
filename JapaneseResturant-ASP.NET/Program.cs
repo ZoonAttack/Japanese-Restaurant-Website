@@ -1,6 +1,5 @@
 using JapaneseRestaurantModel.Data;
 using JapaneseRestaurantModel.Entities;
-using JapaneseResturant_ASP.NET.Endpoints;
 using JapaneseResturant_ASP.NET.Extentions;
 using Microsoft.AspNetCore.Identity;
 
@@ -34,9 +33,6 @@ namespace JapaneseResturant_ASP.NET
             }
 
             app.UseStaticFiles();
-
-            app.MapSignUpEndpoint();
-            app.MapSignInEndpoint();
             app.MapIdentityApi<User>();
             app.Run();
         }
