@@ -1,56 +1,5 @@
-// Menu Items Data
-const menuItems = [
-    {
-        id: 1,
-        name: "Sushi",
-        price: 80,
-        image: "https://static.tildacdn.info/tild6461-6235-4466-b438-303030376464/close-up-plate-with-.jpg"
-    },
-    {
-        id: 2,
-        name: "Ramen",
-        price: 100,
-        image: "https://static.tildacdn.info/tild6634-3632-4466-b430-363130383564/ramen.jpg"
-    },
-    {
-        id: 3,
-        name: "Yakisoba",
-        price: 100,
-        image: "https://static.tildacdn.info/tild6131-3637-4736-a331-636438333435/Chicken-Yakisoba.jpg"
-    },
-    {
-        id: 4,
-        name: "Tonkatsu",
-        price: 120,
-        image: "https://static.tildacdn.info/tild3033-3561-4332-b864-356639313161/Tonkatsu.jpg"
-    },
-    {
-        id: 5,
-        name: "Onigiri",
-        price: 75,
-        image: "https://static.tildacdn.info/tild3461-3031-4364-b265-333132343337/Onigiri.jpg"
-    },
-    {
-        id: 6,
-        name: "Miso Soup",
-        price: 60,
-        image: "https://static.tildacdn.info/tild6134-3431-4565-b238-343061333238/steaming-bowl-miso-s.jpg"
-    },
-    {
-        id: 7,
-        name: "Curry Rice",
-        price: 90,
-        image: "https://static.tildacdn.info/tild6534-6663-4533-b631-383435343734/Curry_Rice.jpg"
-    },
-    {
-        id: 8,
-        name: "Tempura",
-        price: 130,
-        image: "https://static.tildacdn.info/tild3066-6435-4137-a637-653131653333/Tempura.jpg"
-    }
-];
+import { regenerateToken } from "/Modules/token.js";
 
-// Cart State
 let cart = [];
 
 // DOM Elements
@@ -155,21 +104,27 @@ function setupEventListeners() {
 }
 
 // Add item to cart
-function addToCart(itemId) {
-    const item = menuItems.find(item => item.id === itemId);
-    
-    if (!item) return;
-    
-    const existingItem = cart.find(cartItem => cartItem.id === itemId);
-    
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        cart.push({
-            ...item,
-            quantity: 1
-        });
+function addToCart(itemId)
+{
+    regenerateToken();
+
+    const response = await fetch("/dashboard/addtocart", {
+
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+
+
+        }, body: JSON.stringify(data),
+
+    });
+
+    if (response.ok) {
+        var responseBody = response.json();
+        responseBody.
+            window.location.replace("/UserPage/dashboard/dashboard.html")
     }
+    alert(response.text())
     
     updateCart();
 }
@@ -190,20 +145,27 @@ function removeFromCart(itemId) {
 }
 
 // Update cart UI
-function updateCart() {
-    // Update cart counter
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    cartCounter.textContent = totalItems;
-    
-    // Update cart items
-    renderCartItems();
-    
-    // Update cart total
-    const total = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-    cartTotal.textContent = `EGP ${total}`;
-    
-    // Save cart to localStorage
-    localStorage.setItem('cart', JSON.stringify(cart));
+async function updateCart()
+{
+
+    regenerateToken();
+
+    const response = await fetch("/dashboard/updatecart", {
+
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+
+
+        }
+    });
+
+    if (response.ok) {
+        var responseBody = response.json();
+        
+            window.location.replace("/UserPage/dashboard/dashboard.html")
+    }
+    alert(response.text())
 }
 
 // Render cart items
@@ -316,8 +278,22 @@ function hideLogoutModal() {
 
 // Handle logout confirmation
 function handleLogout() {
+    regenerateToken();
     // Redirect to signin page
-    window.location.href = "../../SignIn/signin.html";
+    const response = await fetch("/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+        window.location.replace("/SignIn/signin.html")
+    }
+    else {
+        alert(response.text())
+    }
 }
 
 // Checkout function
@@ -341,9 +317,65 @@ function loadCart() {
         updateCart();
     }
 }
+async function getUserData()
+{
+    regenerateToken();
+    const response = await fetch("/getuserdata", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        },
+    });
+
+    if (!response.ok) {
+        alert(response.text())
+
+    }
+    else {
+        const userData = await response.json();
+
+
+    }
+}
+
+async function getMenuData()
+{
+    regenerateToken();
+    const response = await fetch("/getmenudata", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        },
+    });
+
+    if (!response.ok) {
+        alert(response.text())
+
+    }
+    else {
+
+        const items = await response.json();
+        const menuGrid = document.querySelector(".menu-grid");
+
+        items.forEach(item => {
+            const itemDiv = document.createElement("div");
+            itemDiv.classList.add("menu-item"); // Optional styling class
+
+            itemDiv.innerHTML = `
+            <img src="${item.imageUrl}" alt="${item.name}" class="menu-image" />
+            <h3>${item.name}</h3>
+            <p>${item.description}</p>
+            <span class="price">EGP ${item.price}</span>
+        `;
+
+            menuGrid.appendChild(itemDiv);
+        });
+    }
+}
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
     init();
-    loadCart();
+    getUserData();
+    getMenuData();
 });

@@ -1,5 +1,6 @@
 using JapaneseRestaurantModel.Data;
 using JapaneseRestaurantModel.Entities;
+using JapaneseResturant_ASP.NET.Endpoints;
 using JapaneseResturant_ASP.NET.Extentions;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,8 +14,6 @@ namespace JapaneseResturant_ASP.NET
 
             builder.Services.AddAuthorization();
             builder.Services.AddAuthentication()
-                .AddCookie(IdentityConstants
-                .ApplicationScheme)
                 .AddBearerToken(IdentityConstants.BearerScheme);
 
             builder.Services.AddIdentityCore<User>()
@@ -34,6 +33,8 @@ namespace JapaneseResturant_ASP.NET
 
             app.UseStaticFiles();
             app.MapIdentityApi<User>();
+
+            app.MapDashboardEndpoints();
             app.Run();
         }
     }
