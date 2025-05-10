@@ -6,16 +6,28 @@
         password: document.getElementById("password").value
     };
 
-    const response = await fetch("/signin", {
-        method: "GET",
+        const response = await fetch("/login", {
+
+        method: "POST",
         headers: {
             "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
+            
+            
+        }, body: JSON.stringify(data),
+
     });
 
-    if (response.ok) {
-        window.location.replace("/UserPage/dashboard/dashboard.html")
-    }
-    alert(response.text())
+        if (!response.ok) {
+            alert(response.text())
+        }
+        else {
+            var responseBody = await response.json();
+            var accessToken = responseBody.accessToken;
+            var refreshToken = responseBody.refreshToken;
+
+            sessionStorage.setItem("accessToken", accessToken);
+
+            sessionStorage.setItem("accessToken", refreshToken)
+            window.location.replace("/UserPage/dashboard/dashboard.html")
+        }
 });

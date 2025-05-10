@@ -5,9 +5,10 @@
         name: document.getElementById("name").value,
         email: document.getElementById("email").value,
         password: document.getElementById("password").value
-    };
+        };
 
-    const response = await fetch("/signup", {
+
+    const response = await fetch("/register", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -17,6 +18,9 @@
 
         if (response.ok) {
             window.location.replace("/SignIn/signin.html")
+        }
+        else {
+            window.alert(response.statusText);
         }
         
 });

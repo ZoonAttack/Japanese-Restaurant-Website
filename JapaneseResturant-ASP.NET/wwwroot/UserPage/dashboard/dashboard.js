@@ -1,63 +1,4 @@
-// Menu Items Data
-const menuItems = [
-    {
-        id: 1,
-        name: "Sushi",
-        price: 80,
-        image: "https://static.tildacdn.info/tild6461-6235-4466-b438-303030376464/close-up-plate-with-.jpg",
-        ingredients: ["Sushi Rice", "Nori (Seaweed)", "Fresh Fish (Salmon/Tuna)", "Wasabi", "Soy Sauce", "Pickled Ginger"]
-    },
-    {
-        id: 2,
-        name: "Ramen",
-        price: 100,
-        image: "https://static.tildacdn.info/tild6634-3632-4466-b430-363130383564/ramen.jpg",
-        ingredients: ["Ramen Noodles", "Pork/Chicken Broth", "Chashu (Braised Pork)", "Soft-Boiled Egg", "Green Onions", "Nori", "Bamboo Shoots"]
-    },
-    {
-        id: 3,
-        name: "Yakisoba",
-        price: 100,
-        image: "https://static.tildacdn.info/tild6131-3637-4736-a331-636438333435/Chicken-Yakisoba.jpg",
-        ingredients: ["Yakisoba Noodles", "Sliced Pork/Chicken", "Cabbage", "Carrots", "Onions", "Yakisoba Sauce", "Aonori (Seaweed Flakes)", "Pickled Ginger"]
-    },
-    {
-        id: 4,
-        name: "Tonkatsu",
-        price: 120,
-        image: "https://static.tildacdn.info/tild3033-3561-4332-b864-356639313161/Tonkatsu.jpg",
-        ingredients: ["Pork Cutlet", "Panko Breadcrumbs", "Eggs", "Flour", "Cabbage", "Tonkatsu Sauce", "Japanese Mayo", "Steamed Rice"]
-    },
-    {
-        id: 5,
-        name: "Onigiri",
-        price: 75,
-        image: "https://static.tildacdn.info/tild3461-3031-4364-b265-333132343337/Onigiri.jpg",
-        ingredients: ["Japanese Rice", "Nori (Seaweed)", "Salt", "Filling (Tuna/Salmon/Umeboshi/Kombu)"]
-    },
-    {
-        id: 6,
-        name: "Miso Soup",
-        price: 60,
-        image: "https://static.tildacdn.info/tild6134-3431-4565-b238-343061333238/steaming-bowl-miso-s.jpg",
-        ingredients: ["Dashi Stock", "Miso Paste", "Tofu", "Wakame Seaweed", "Green Onions"]
-    },
-    {
-        id: 7,
-        name: "Curry Rice",
-        price: 90,
-        image: "https://static.tildacdn.info/tild6534-6663-4533-b631-383435343734/Curry_Rice.jpg",
-        ingredients: ["Japanese Rice", "Curry Roux", "Potatoes", "Carrots", "Onions", "Meat (Chicken/Beef/Pork)", "Garlic", "Ginger"]
-    },
-    {
-        id: 8,
-        name: "Tempura",
-        price: 130,
-        image: "https://static.tildacdn.info/tild3066-6435-4137-a637-653131653333/Tempura.jpg",
-        ingredients: ["Shrimp", "Assorted Vegetables (Sweet Potato, Eggplant, Bell Pepper)", "Tempura Batter", "Tempura Dipping Sauce", "Grated Daikon"]
-    }
-];
-
+import { regenereateToken } from "/Modules/token.js";
 // Cart State
 let cart = [];
 
@@ -83,7 +24,8 @@ const confirmLogout = document.getElementById('confirmLogout');
 
 // Initialize the page
 function init() {
-    renderMenuItems();
+    //getUserData();
+    getMenuData();
     setupEventListeners();
     setupIngredientsModal();
 }
@@ -135,7 +77,6 @@ function showIngredients(title, ingredients) {
     // Show the modal
     modal.classList.add('active');
 }
-
 // Render menu items
 function renderMenuItems() {
     menuGrid.innerHTML = '';
@@ -177,7 +118,6 @@ function renderMenuItems() {
         });
     });
 }
-
 // Setup event listeners
 function setupEventListeners() {
     // Toggle cart modal
@@ -384,9 +324,22 @@ function hideLogoutModal() {
 }
 
 // Handle logout confirmation
-function handleLogout() {
+async function handleLogout() {
     // Redirect to signin page
-    window.location.href = "../../SignIn/signin.html";
+    const response = await fetch("/dashboard/logout", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+        window.location.replace("/SignIn/signin.html")
+    }
+    else {
+        alert(response.text())
+    }
 }
 
 // Checkout function
@@ -410,7 +363,63 @@ function loadCart() {
         updateCart();
     }
 }
+async function getUserData()
+{
+    const response = await fetch("dashboard/getuserdata", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        },
+    });
 
+    if (!response.ok) {
+        alert(response.text())
+
+    }
+    else {
+        const userData = await response.json();
+
+
+    }
+}
+
+async function getMenuData()
+{
+    const response = await fetch("dashboard/getmenudata", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        },
+    });
+
+    if (!response.ok) {
+        alert(response.text())
+
+    }
+    else {
+        alert(response.text())
+        const items = await response.json();
+        items.forEach(item => {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = 'menu-item';
+            itemDiv.innerHTML = `
+            <div class="menu-item-image" style="background-image: url('${item.image}')"></div>
+            <div class="menu-item-details">
+                <h3 class="menu-item-title">${item.name}</h3>
+                <p class="menu-item-price">EGP ${item.price}</p>
+                <button class="btn btn-add-to-cart" data-id="${item.id}">Add to Cart</button>
+            </div>
+        `;
+            menuGrid.appendChild(itemDiv);
+        });
+        document.querySelectorAll('.btn-add-to-cart').forEach(button => {
+            button.addEventListener('click', function () {
+                const itemId = parseInt(this.getAttribute('data-id'));
+                addToCart(itemId);
+            });
+        });
+    }
+}
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function () {
     init();
