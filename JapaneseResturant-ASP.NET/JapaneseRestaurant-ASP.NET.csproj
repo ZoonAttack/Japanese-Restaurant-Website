@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>JapaneseResturant_ASP.NET</RootNamespace>
+    <UserSecretsId>48a2121e-7f56-4a5e-8895-3b22d83316c9</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
