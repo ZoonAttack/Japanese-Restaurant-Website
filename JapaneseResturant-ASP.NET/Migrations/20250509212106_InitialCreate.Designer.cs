@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JapaneseResturant_ASP.NET.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250509113442_intitalMigration")]
-    partial class intitalMigration
+    [Migration("20250509212106_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

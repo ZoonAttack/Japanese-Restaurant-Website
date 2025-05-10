@@ -16,6 +16,6 @@
     {
         Pending,
         In_Prgress,
-        Done
+        Completed
     }
 }

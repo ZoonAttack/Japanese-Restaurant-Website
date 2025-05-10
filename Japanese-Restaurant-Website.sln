@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JapaneseResturant-ASP.NET", "JapaneseResturant-ASP.NET\JapaneseResturant-ASP.NET.csproj", "{3DC4A99B-41BA-4119-BA66-5624708CF2D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JapaneseRestaurant-ASP.NET", "JapaneseResturant-ASP.NET\JapaneseRestaurant-ASP.NET.csproj", "{3DC4A99B-41BA-4119-BA66-5624708CF2D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0A1DA774-48BD-46AE-BA12-DAE76E891B5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

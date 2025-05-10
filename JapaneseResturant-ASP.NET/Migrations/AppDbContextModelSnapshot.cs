@@ -69,7 +69,10 @@ namespace JapaneseResturant_ASP.NET.Migrations
             modelBuilder.Entity("JapaneseRestaurantModel.Entities.Customer", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()

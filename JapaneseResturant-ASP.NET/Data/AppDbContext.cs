@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace JapaneseRestaurantModel.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Chef> Chefs { get; set; }
         public DbSet<Customer> Customers { get; set; }

@@ -1,0 +1,17 @@
+﻿POST http://localhost:5267/signup
+Content-Type: application/json
+
+{
+    "name": "rrr",
+    "email": "rr@gmail.com",
+    "password": "1234"
+}
+
+###
+GET http://localhost:5267/signin
+Content-Type: application/json
+
+{
+    "email": "rr@gmail.com",
+    "password": "1234"
+}
