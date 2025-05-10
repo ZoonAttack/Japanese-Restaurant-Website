@@ -11,7 +11,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
     {
         public static void MapDashboardEndpoints(this WebApplication app)
         {
-            app.MapPost("dashboard/logout", async (SignInManager<User> signInManager, UserManager<User> UserManager, [FromBody] object empty) =>
+            app.MapPost("/logout", async (SignInManager<User> signInManager, UserManager<User> UserManager, [FromBody] object empty) =>
             {
                 if (empty != null)
                 {
@@ -21,7 +21,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 return Results.Unauthorized();
             }).RequireAuthorization();
 
-            app.MapGet("dashboard/getmenudata", async (HttpContext context, AppDbContext dbContext) =>
+            app.MapGet("/getmenudata", async (HttpContext context, AppDbContext dbContext) =>
             {
                 var dishes = await dbContext.Dishes.Select(x => x.ToDto()).ToListAsync();
                 return Results.Ok(dishes);

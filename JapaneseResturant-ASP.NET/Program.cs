@@ -18,7 +18,7 @@ namespace JapaneseResturant_ASP.NET
 
             builder.Services.AddIdentityCore<User>()
                 .AddEntityFrameworkStores<AppDbContext>()
-                .AddApiEndpoints();
+                .AddApiEndpoints().AddDefaultTokenProviders();
             builder.Services.AddOpenApiDocument();
             var connstring = builder.Configuration.GetConnectionString("conn");
             builder.Services.AddSqlServer<AppDbContext>(connstring);

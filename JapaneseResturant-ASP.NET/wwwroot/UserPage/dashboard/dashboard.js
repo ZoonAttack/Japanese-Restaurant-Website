@@ -1,7 +1,61 @@
-import { regenereateToken } from "/Modules/token.js";
+async function regenerateToken() {
+    var refreshToken = sessionStorage.getItem("refreshToken");
+
+    if (!refreshToken) {
+        alert("You need to login again!")
+        return;
+    }
+    const response = await fetch("/refresh", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken })
+    });
+
+    if (response.ok) {
+        // If the response is successful, get the new tokens
+        const responseBody = await response.json();
+        const newAccessToken = responseBody.accessToken;
+        const newRefreshToken = responseBody.refreshToken;
+
+        // Store the new tokens in sessionStorage
+        sessionStorage.setItem('accessToken', newAccessToken);
+        sessionStorage.setItem('refreshToken', newRefreshToken);
+
+        console.log("New access token and refresh token stored.");
+    } else {
+        // Handle the error (e.g., refresh token is invalid or expired)
+        alert("Unable to refresh tokens. Please log in again.");
+    }
+}
+async function authFetch(input, init = {}) {
+    let token = sessionStorage.getItem('accessToken');
+    init.headers = {
+        ...(init.headers || {}),
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+
+    let response = await fetch(input, init);
+    if (response.status !== 401) return response;
+
+    // Attempt token refresh once
+    await regenerateToken();
+    token = sessionStorage.getItem('accessToken');
+    init.headers['Authorization'] = `Bearer ${token}`;
+
+    response = await fetch(input, init);
+    if (response.status === 401) {
+        // Refresh failed → force logout
+        sessionStorage.clear();
+        window.location.replace('/SignIn/signin.html');
+    }
+    return response;
+}
 // Cart State
 let cart = [];
-
+let menuItems = []; // At the top
 // DOM Elements
 const menuGrid = document.querySelector('.menu-grid');
 const cartCounter = document.getElementById('cartCounter');
@@ -326,7 +380,7 @@ function hideLogoutModal() {
 // Handle logout confirmation
 async function handleLogout() {
     // Redirect to signin page
-    const response = await fetch("/dashboard/logout", {
+    const response = await autoFetch("/dashboard/logout", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -378,50 +432,56 @@ async function getUserData()
     }
     else {
         const userData = await response.json();
-
-
     }
 }
 
-async function getMenuData()
-{
-    const response = await fetch("dashboard/getmenudata", {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        },
-    });
+async function getMenuData() {
+    try {
+        const response = await authFetch('/getmenudata'); // Replace with actual endpoint
 
-    if (!response.ok) {
-        alert(response.text())
+        if (!response.ok) {
+            const errorText = await response.text();
+            alert(errorText);
+            return;
+        }
 
-    }
-    else {
-        alert(response.text())
         const items = await response.json();
-        items.forEach(item => {
-            const itemDiv = document.createElement("div");
-            itemDiv.className = 'menu-item';
-            itemDiv.innerHTML = `
-            <div class="menu-item-image" style="background-image: url('${item.image}')"></div>
-            <div class="menu-item-details">
-                <h3 class="menu-item-title">${item.name}</h3>
-                <p class="menu-item-price">EGP ${item.price}</p>
-                <button class="btn btn-add-to-cart" data-id="${item.id}">Add to Cart</button>
-            </div>
-        `;
-            menuGrid.appendChild(itemDiv);
-        });
-        document.querySelectorAll('.btn-add-to-cart').forEach(button => {
-            button.addEventListener('click', function () {
-                const itemId = parseInt(this.getAttribute('data-id'));
-                addToCart(itemId);
-            });
-        });
+        menuItems = items; // Save globally if needed
+        renderMenuItems(); // Call after data is loaded
+
+        //items.forEach(item => {
+        //    const itemDiv = document.createElement("div");
+        //    itemDiv.className = 'menu-item';
+        //    itemDiv.innerHTML = `
+        //        <div class="menu-item-image" style="background-image: url('${item.image}')"></div>
+        //        <div class="menu-item-details">
+        //            <h3 class="menu-item-title">${item.name}</h3>
+        //            <p class="menu-item-price">EGP ${item.price}</p>
+        //            <button class="btn btn-add-to-cart" data-id="${item.id}">Add to Cart</button>
+        //        </div>
+        //    `;
+        //    menuGrid.appendChild(itemDiv);
+        //});
+
+        //document.querySelectorAll('.btn-add-to-cart').forEach(button => {
+        //    button.addEventListener('click', function () {
+        //        const itemId = parseInt(this.getAttribute('data-id'));
+        //        addToCart(itemId);
+        //    });
+        //});
+
+    } catch (error) {
+        console.error("Failed to load menu items:", error);
+        alert("An error occurred while loading menu items.");
     }
 }
 // Initialize the page
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
+    const accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+        window.location.replace('/SignIn/signin.html');  // no token → redirect
+        return;
+    }
     init();
     loadCart();
 });

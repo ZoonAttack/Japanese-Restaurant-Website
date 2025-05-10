@@ -29,5 +29,28 @@
         alert("Unable to refresh tokens. Please log in again.");
     }
 }
+async function authFetch(input, init = {}) {
+    let token = sessionStorage.getItem('accessToken');
+    init.headers = {
+        ...(init.headers || {}),
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
 
-export { regenerateToken };
+    let response = await fetch(input, init);
+    if (response.status !== 401) return response;
+
+    // Attempt token refresh once
+    await regenerateToken();
+    token = sessionStorage.getItem('accessToken');
+    init.headers['Authorization'] = `Bearer ${token}`;
+
+    response = await fetch(input, init);
+    if (response.status === 401) {
+        // Refresh failed → force logout
+        sessionStorage.clear();
+        window.location.replace('/SignIn/signin.html');
+    }
+    return response;
+}
+export { authFetch };
