@@ -27,6 +27,14 @@ namespace JapaneseRestaurantModel.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+            modelBuilder.Entity<User>().HasMany(x => x.Orders)
+                .WithOne(x => x.User)
+                .HasForeignKey(x => x.UserId).IsRequired();
+
+            modelBuilder.Entity<User>().HasMany(x => x.Reviews)
+                .WithOne(x => x.User)
+                .HasForeignKey(x => x.UserId).IsRequired();
         }
     }
 }

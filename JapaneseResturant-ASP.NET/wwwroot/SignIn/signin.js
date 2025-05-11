@@ -1,33 +1,30 @@
-    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+﻿document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault(); // Prevent default form submission
 
-    const data = {
-        email: document.getElementById("email").value,
-        password: document.getElementById("password").value
-    };
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-        const response = await fetch("/login", {
-
+    const response = await fetch("/login", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-            
-            
-        }, body: JSON.stringify(data),
-
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
     });
 
-        if (!response.ok) {
-            alert(response.text())
-        }
-        else {
-            var responseBody = await response.json();
-            var accessToken = responseBody.accessToken;
-            var refreshToken = responseBody.refreshToken;
+    if (response.ok) {
+        const data = await response.json();
 
-            sessionStorage.setItem("accessToken", accessToken);
+        // Store tokens properly
+        sessionStorage.setItem("accessToken", data.accessToken);
+        sessionStorage.setItem("refreshToken", data.refreshToken);
 
-            sessionStorage.setItem("accessToken", refreshToken)
-            window.location.replace("/UserPage/dashboard/dashboard.html")
-        }
+        // Optional: log the token to debug
+        console.log("accessToken:", data.accessToken);
+        console.log("refreshToken:", data.refreshToken);
+
+        // Redirect only if login is successful
+        window.location.replace("/UserPage/dashboard/dashboard.html");
+    } else {
+        const error = await response.text();
+        alert("Login failed: " + error);
+    }
 });

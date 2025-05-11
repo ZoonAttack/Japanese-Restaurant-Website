@@ -1,3 +1,59 @@
+async function regenerateToken() {
+    var refreshToken = sessionStorage.getItem("refreshToken");
+
+    if (!refreshToken) {
+        alert("You need to login again!")
+        return;
+    }
+    const response = await fetch("/refresh", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken })
+    });
+
+    if (response.ok) {
+        // If the response is successful, get the new tokens
+        const responseBody = await response.json();
+        const newAccessToken = responseBody.accessToken;
+        const newRefreshToken = responseBody.refreshToken;
+
+        // Store the new tokens in sessionStorage
+        sessionStorage.setItem('accessToken', newAccessToken);
+        sessionStorage.setItem('refreshToken', newRefreshToken);
+
+        console.log("New access token and refresh token stored.");
+    } else {
+        // Handle the error (e.g., refresh token is invalid or expired)
+        alert("Unable to refresh tokens. Please log in again.");
+    }
+}
+async function authFetch(input, init = {}) {
+    let token = sessionStorage.getItem('accessToken');
+    init.headers = {
+        ...(init.headers || {}),
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+
+    let response = await fetch(input, init);
+    if (response.status !== 401) return response;
+
+    // Attempt token refresh once
+    await regenerateToken();
+    token = sessionStorage.getItem('accessToken');
+    init.headers['Authorization'] = `Bearer ${token}`;
+
+    response = await fetch(input, init);
+    if (response.status === 401) {
+        // Refresh failed → force logout
+        sessionStorage.clear();
+        window.location.replace("/SignIn/signin.html");
+    }
+    return response;
+}
+
 // DOM Elements
 const ordersList = document.getElementById("ordersList")
 const emptyOrders = document.getElementById("emptyOrders")
@@ -28,56 +84,7 @@ const cancelLogout = document.getElementById("cancelLogout")
 const confirmLogout = document.getElementById("confirmLogout")
 
 // Menu Items Data (for reference in order details)
-const menuItems = [
-  {
-    id: 1,
-    name: "Sushi",
-    price: 80,
-    image: "https://static.tildacdn.info/tild6461-6235-4466-b438-303030376464/close-up-plate-with-.jpg",
-  },
-  {
-    id: 2,
-    name: "Ramen",
-    price: 100,
-    image: "https://static.tildacdn.info/tild6634-3632-4466-b430-363130383564/ramen.jpg",
-  },
-  {
-    id: 3,
-    name: "Yakisoba",
-    price: 100,
-    image: "https://static.tildacdn.info/tild6131-3637-4736-a331-636438333435/Chicken-Yakisoba.jpg",
-  },
-  {
-    id: 4,
-    name: "Tonkatsu",
-    price: 120,
-    image: "https://static.tildacdn.info/tild3033-3561-4332-b864-356639313161/Tonkatsu.jpg",
-  },
-  {
-    id: 5,
-    name: "Onigiri",
-    price: 75,
-    image: "https://static.tildacdn.info/tild3461-3031-4364-b265-333132343337/Onigiri.jpg",
-  },
-  {
-    id: 6,
-    name: "Miso Soup",
-    price: 60,
-    image: "https://static.tildacdn.info/tild6134-3431-4565-b238-343061333238/steaming-bowl-miso-s.jpg",
-  },
-  {
-    id: 7,
-    name: "Curry Rice",
-    price: 90,
-    image: "https://static.tildacdn.info/tild6534-6663-4533-b631-383435343734/Curry_Rice.jpg",
-  },
-  {
-    id: 8,
-    name: "Tempura",
-    price: 130,
-    image: "https://static.tildacdn.info/tild3066-6435-4137-a637-653131653333/Tempura.jpg",
-  },
-]
+const menuItems = []
 
 // Current order being viewed
 let currentOrder = null
@@ -153,13 +160,34 @@ function loadOrders() {
   }
 
   hideEmptyState()
-  renderOrders(orders)
+  //renderOrders(orders)
 }
 
 // Get orders from localStorage
-function getOrders() {
-  return JSON.parse(localStorage.getItem("orders") || "[]")
+async function getOrders() {
+    try {
+        const response = await authFetch("/getordersdata", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.log("Error response:", errorText);
+            alert(errorText);
+        } else {
+            const userData = await response.text();
+            console.log("Fetched user data:", userData);
+
+        }
+    } catch (error) {
+        console.log("Network or fetch error:", error);
+        alert("An error occurred while fetching orders.");
+    }
 }
+
 
 // Show empty state
 function showEmptyState() {
@@ -681,7 +709,7 @@ function addSampleOrders() {
 // Initialize the page
 document.addEventListener("DOMContentLoaded", () => {
   // Add sample orders for testing
-  addSampleOrders()
+  //addSampleOrders()
 
   init()
 })

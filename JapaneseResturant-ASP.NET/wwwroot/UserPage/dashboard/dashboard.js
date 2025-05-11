@@ -1,6 +1,6 @@
 async function regenerateToken() {
     var refreshToken = sessionStorage.getItem("refreshToken");
-
+    console.log(refreshToken);
     if (!refreshToken) {
         alert("You need to login again!")
         return;
@@ -31,6 +31,7 @@ async function regenerateToken() {
 }
 async function authFetch(input, init = {}) {
     let token = sessionStorage.getItem('accessToken');
+    console.log(token);
     init.headers = {
         ...(init.headers || {}),
         'Authorization': `Bearer ${token}`,
@@ -403,7 +404,7 @@ function hideLogoutModal() {
 // Handle logout confirmation
 async function handleLogout() {
     // Redirect to signin page
-    const response = await autoFetch("/dashboard/logout", {
+    const response = await authFetch("/dashboard/logout", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

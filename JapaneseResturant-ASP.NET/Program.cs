@@ -20,6 +20,7 @@ namespace JapaneseResturant_ASP.NET
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddApiEndpoints().AddDefaultTokenProviders();
             builder.Services.AddOpenApiDocument();
+
             var connstring = builder.Configuration.GetConnectionString("conn");
             builder.Services.AddSqlServer<AppDbContext>(connstring);
             var app = builder.Build();
@@ -32,6 +33,10 @@ namespace JapaneseResturant_ASP.NET
             }
 
             app.UseStaticFiles();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.MapIdentityApi<User>();
 
             app.MapDashboardEndpoints();
