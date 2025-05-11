@@ -18,8 +18,10 @@ namespace JapaneseResturant_ASP.NET.Mappers
         {
             return new 
                 (
+                dish.Id,
                 dish.Name!,
                 dish.Price,
+                dish.Description!,
                 dish.PictureURL!
                 );
         }

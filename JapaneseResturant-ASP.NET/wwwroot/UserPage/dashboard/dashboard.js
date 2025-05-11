@@ -49,7 +49,7 @@ async function authFetch(input, init = {}) {
     if (response.status === 401) {
         // Refresh failed → force logout
         sessionStorage.clear();
-        window.location.replace('/SignIn/signin.html');
+        window.location.replace("/SignIn/signin.html");
     }
     return response;
 }
@@ -112,66 +112,89 @@ function setupIngredientsModal() {
 
 // Show ingredients modal
 function showIngredients(title, ingredients) {
-    const modal = document.getElementById('ingredientsModal');
-    const modalTitle = document.getElementById('ingredientsModalTitle');
-    const ingredientsContent = document.getElementById('ingredientsContent');
+    try {
+        const modal = document.getElementById('ingredientsModal');
+        const modalTitle = document.getElementById('ingredientsModalTitle');
+        const ingredientsContent = document.getElementById('ingredientsContent');
 
-    // Set the title and ingredients
-    modalTitle.textContent = title + " Ingredients";
+        if (!modal || !modalTitle || !ingredientsContent) {
+            throw new Error("Modal elements not found in the DOM.");
+        }
 
-    // Create ingredients list
-    let ingredientsList = '<ul class="ingredients-list">';
-    ingredients.forEach(ingredient => {
-        ingredientsList += `<li>${ingredient}</li>`;
-    });
-    ingredientsList += '</ul>';
+        if (!Array.isArray(ingredients)) {
+            ingredients = ingredients ? [ingredients] : [];
+        }
 
-    ingredientsContent.innerHTML = ingredientsList;
+        // Set the title and ingredients
+        modalTitle.textContent = `${title || "Dish"} Ingredients`;
 
-    // Show the modal
-    modal.classList.add('active');
+        // Create ingredients list
+        let ingredientsList = '<ul class="ingredients-list">';
+        ingredients.forEach(ingredient => {
+            ingredientsList += `<li>${ingredient}</li>`;
+        });
+        ingredientsList += '</ul>';
+
+        ingredientsContent.innerHTML = ingredientsList;
+
+        // Show the modal
+        modal.classList.add('active');
+    } catch (error) {
+        console.error("Error displaying ingredients modal:", error);
+        alert("Could not display ingredients. Please try again later.");
+    }
 }
+
 // Render menu items
 function renderMenuItems() {
-    menuGrid.innerHTML = '';
+    try {
+        menuGrid.innerHTML = '';
 
-    menuItems.forEach(item => {
-        const menuItem = document.createElement('div');
-        menuItem.className = 'menu-item';
-        menuItem.innerHTML = `
-            <div class="menu-item-image" style="background-image: url('${item.image}')" data-id="${item.id}"></div>
-            <div class="menu-item-content">
-                <div class="menu-item-header">
-                    <h3 class="menu-item-title">${item.name}</h3>
-                    <p class="menu-item-price">EGP ${item.price}</p>
-                </div>
-                <button class="btn btn-primary btn-add-to-cart" data-id="${item.id}">Add to Cart</button>
-            </div>
-        `;
-        menuGrid.appendChild(menuItem);
-    });
-
-    // Add event listeners to "Add to Cart" buttons
-    const addToCartButtons = document.querySelectorAll('.btn-add-to-cart');
-    addToCartButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const itemId = parseInt(this.getAttribute('data-id'));
-            addToCart(itemId);
-        });
-    });
-
-    // Add event listeners to dish images for showing ingredients
-    const dishImages = document.querySelectorAll('.menu-item-image');
-    dishImages.forEach(image => {
-        image.addEventListener('click', function () {
-            const itemId = parseInt(this.getAttribute('data-id'));
-            const item = menuItems.find(item => item.id === itemId);
-            if (item && item.ingredients) {
-                showIngredients(item.name, item.ingredients);
+        menuItems.forEach(item => {
+            if (!item.pictureURL) {
+                console.warn(`Item ID ${item.id} has no image!`);
             }
+            const menuItem = document.createElement('div');
+            menuItem.className = 'menu-item';
+            menuItem.innerHTML = `
+                <div class="menu-item-image" style="background-image: url('${item.pictureURL}')" data-id="${item.id}"></div>
+                <div class="menu-item-content">
+                    <div class="menu-item-header">
+                        <h3 class="menu-item-title">${item.name || "Unnamed Item"}</h3>
+                        <p class="menu-item-price">EGP ${item.price != null ? item.price : "N/A"}</p>
+                    </div>
+                    <button class="btn btn-primary btn-add-to-cart" data-id="${item.id}">Add to Cart</button>
+                </div>
+            `;
+            menuGrid.appendChild(menuItem);
         });
-    });
+
+        const addToCartButtons = document.querySelectorAll('.btn-add-to-cart');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const itemId = parseInt(this.getAttribute('data-id'));
+                if (!isNaN(itemId)) {
+                    addToCart(itemId);
+                }
+            });
+        });
+
+        const dishImages = document.querySelectorAll('.menu-item-image');
+        dishImages.forEach(image => {
+            image.addEventListener('click', function () {
+                const itemId = parseInt(this.getAttribute('data-id'));
+                const item = menuItems.find(item => item.id === itemId);
+                if (item && item.description) {
+                    showIngredients(item.name, item.description);
+                }
+            });
+        });
+    } catch (error) {
+        console.error("Error rendering menu items:", error);
+        menuGrid.innerHTML = `<p class="error-message">Failed to load menu items. Please try again later.</p>`;
+    }
 }
+
 // Setup event listeners
 function setupEventListeners() {
     // Toggle cart modal
@@ -437,7 +460,7 @@ async function getUserData()
 
 async function getMenuData() {
     try {
-        const response = await authFetch('/getmenudata'); // Replace with actual endpoint
+        const response = await authFetch('/getmenudata');
 
         if (!response.ok) {
             const errorText = await response.text();

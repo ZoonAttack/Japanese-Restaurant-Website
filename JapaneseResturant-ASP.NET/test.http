@@ -16,4 +16,4 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:5267/dashboard/getmenudata
+GET http://localhost:5267/getmenudata

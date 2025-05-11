@@ -21,7 +21,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 return Results.Unauthorized();
             }).RequireAuthorization();
 
-            app.MapGet("/getmenudata", async (HttpContext context, AppDbContext dbContext) =>
+            app.MapGet("/getmenudata", async (AppDbContext dbContext) =>
             {
                 var dishes = await dbContext.Dishes.Select(x => x.ToDto()).ToListAsync();
                 return Results.Ok(dishes);
