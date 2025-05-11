@@ -54,9 +54,8 @@ async function authFetch(input, init = {}) {
     }
     return response;
 }
-// Cart State
 let cart = [];
-let menuItems = []; // At the top
+let menuItems = []; 
 // DOM Elements
 const menuGrid = document.querySelector('.menu-grid');
 const cartCounter = document.getElementById('cartCounter');
@@ -245,7 +244,7 @@ function setupEventListeners() {
 function addToCart(itemId) {
     const item = menuItems.find(item => item.id === itemId);
 
-    if (!item) return;
+    if (!item) { console.log("Dish not available!"); return; }
 
     const existingItem = cart.find(cartItem => cartItem.id === itemId);
 
@@ -278,6 +277,7 @@ function removeFromCart(itemId) {
 
 // Update cart UI
 function updateCart() {
+    console.log("(at updateCart) cart: ", cart);
     // Update cart counter
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
     cartCounter.textContent = totalItems;
@@ -290,7 +290,7 @@ function updateCart() {
     cartTotal.textContent = `EGP ${total}`;
 
     // Save cart to localStorage
-    localStorage.setItem('cart', JSON.stringify(cart));
+    sessionStorage.setItem('cart', JSON.stringify(cart));
 }
 
 // Render cart items
@@ -315,7 +315,7 @@ function renderCartItems() {
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
         cartItem.innerHTML = `
-            <div class="cart-item-image" style="background-image: url('${item.image}')"></div>
+            <div class="cart-item-image" style="background-image: url('${item.pictureURL}')"></div>
             <div class="cart-item-details">
                 <h4 class="cart-item-title">${item.name}</h4>
                 <p class="cart-item-price">EGP ${item.price} × ${item.quantity}</p>
@@ -404,12 +404,12 @@ function hideLogoutModal() {
 // Handle logout confirmation
 async function handleLogout() {
     // Redirect to signin page
-    const response = await authFetch("/dashboard/logout", {
+    const response = await authFetch("/logout", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify({})
     });
 
     if (response.ok) {
@@ -421,44 +421,44 @@ async function handleLogout() {
 }
 
 // Checkout function
-function checkout() {
-    if (cart.length === 0) {
-        alert('Your cart is empty!');
-        return;
-    }
+async function checkout() {
+    const currentDate = new Date().toISOString();
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    alert('Thank you for your order!');
-    cart = [];
-    updateCart();
-    toggleCart();
+    const payload = {
+        date: currentDate,
+        items: cart.map(item => ({
+            productId: item.id,
+        })),
+        total: totalPrice
+    };
+
+    try {
+        const res = await authFetch('/updateorders', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!res.ok) {
+            throw new Error('Failed to checkout');
+        }
+
+        const data = await res.json();
+        console.log('Checkout successful:', data);
+    } catch (error) {
+        console.error('Checkout error:', error);
+    }
 }
 
-// Load cart from localStorage on page load
+// Load cart from sessionStorage on page load
 function loadCart() {
-    const savedCart = localStorage.getItem('cart');
+    const savedCart = sessionStorage.getItem('cart');
     if (savedCart) {
         cart = JSON.parse(savedCart);
         updateCart();
     }
 }
-async function getUserData()
-{
-    const response = await fetch("dashboard/getuserdata", {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        },
-    });
-
-    if (!response.ok) {
-        alert(response.text())
-
-    }
-    else {
-        const userData = await response.json();
-    }
-}
-
 async function getMenuData() {
     try {
         const response = await authFetch('/getmenudata');

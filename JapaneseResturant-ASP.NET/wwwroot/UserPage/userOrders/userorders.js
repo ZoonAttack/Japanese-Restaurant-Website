@@ -92,8 +92,8 @@ let currentOrder = null
 let orderToReorder = null
 
 // Initialize the page
-function init() {
-  loadOrders()
+async function init() {
+  await loadOrders()
   setupEventListeners()
 }
 
@@ -151,16 +151,15 @@ function setupEventListeners() {
 }
 
 // Load orders from localStorage
-function loadOrders() {
-  const orders = getOrders()
-
+async function loadOrders() {
+  const orders = await getOrders()
   if (orders.length === 0) {
     showEmptyState()
     return
   }
 
   hideEmptyState()
-  //renderOrders(orders)
+  renderOrders(orders)
 }
 
 // Get orders from localStorage
@@ -174,12 +173,14 @@ async function getOrders() {
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
+            const errorText = await response.json();
             console.log("Error response:", errorText);
             alert(errorText);
         } else {
-            const userData = await response.text();
+            const userData = await response.json();
             console.log("Fetched user data:", userData);
+
+            return userData;
 
         }
     } catch (error) {
@@ -215,7 +216,7 @@ function createOrderCard(order) {
   orderCard.className = "order-card"
 
   // Format date
-  const orderDate = new Date(order.date)
+  const orderDate = new Date(order.orderDate)
   const formattedDate = formatDate(orderDate)
 
   // Get status class
@@ -225,7 +226,7 @@ function createOrderCard(order) {
   const itemPreviews = order.items
     .slice(0, 3)
     .map((item) => {
-      return `<div class="order-item-image" style="background-image: url('${item.image}')"></div>`
+      return `<div class="order-item-image" style="background-image: url('${item.pictureUrl}')"></div>`
     })
     .join("")
 
@@ -287,7 +288,7 @@ function showOrderDetails(order) {
   currentOrder = order
 
   // Format date
-  const orderDate = new Date(order.date)
+  const orderDate = new Date(order.orderDate)
   const formattedDate = formatDate(orderDate)
 
   // Get status class
@@ -298,7 +299,7 @@ function showOrderDetails(order) {
     .map((item) => {
       return `
             <div class="order-details-item">
-                <div class="order-details-item-image" style="background-image: url('${item.image}')"></div>
+                <div class="order-details-item-image" style="background-image: url('${item.pictureUrl}')"></div>
                 <div class="order-details-item-info">
                     <div class="order-details-item-name">${item.name}</div>
                     <div class="order-details-item-price">EGP ${item.price}</div>
@@ -360,22 +361,29 @@ function showReorderConfirmation(order) {
   }
   
   orderToReorder = order
-  
   // Create items list for reorder confirmation
-  const itemsList = order.items
-    .map((item, index) => {
-      return `
-            <div class="reorder-item" style="animation-delay: ${index * 0.05}s">
-                <div class="reorder-item-image" style="background-image: url('${item.image}')"></div>
-                <div class="reorder-item-details">
-                    <div class="reorder-item-name">${item.name}</div>
-                    <div class="reorder-item-price">EGP ${item.price}</div>
-                </div>
-                <div class="reorder-item-quantity">x${item.quantity}</div>
-            </div>
-        `
-    })
-    .join("")
+    if (!Array.isArray(order.items)) {
+        console.warn("Malformed or missing order.items", order)
+    }
+    const items = Array.isArray(order.items) ? order.items : []
+
+
+    const itemsList = items
+        .map((item, index) => {
+            return `
+      <div class="reorder-item" style="animation-delay: ${index * 0.05}s">
+          <div class="reorder-item-image" style="background-image: url('${item.pictureUrl}')"></div>
+          <div class="reorder-item-details">
+              <div class="reorder-item-name">${item.name}</div>
+              <div class="reorder-item-price">EGP ${item.price}</div>
+          </div>
+          <div class="reorder-item-quantity">x${item.quantity}</div>
+      </div>
+    `
+        })
+        .join("")
+
+
 
   reorderItemsList.innerHTML = itemsList
   
@@ -447,11 +455,11 @@ function redirectToCartPage() {
 }
 
 // Filter orders based on search and filter
-function filterOrders() {
+async function filterOrders() {
   const searchTerm = orderSearch.value.toLowerCase()
   const filterValue = orderFilter.value
 
-  let orders = getOrders()
+  let orders = await getOrders()
 
   // Apply search filter
   if (searchTerm) {
@@ -533,7 +541,7 @@ function handleLogout() {
 // Print receipt
 function printReceipt(order) {
   // Format date
-  const orderDate = new Date(order.date)
+  const orderDate = new Date(order.orderDate)
   const formattedDate = formatDate(orderDate)
 
   // Create a new window for printing
@@ -655,61 +663,60 @@ function printReceipt(order) {
   printWindow.document.close()
 }
 
-// Add sample orders for testing if none exist
-function addSampleOrders() {
-  const orders = getOrders()
+//// Add sample orders for testing if none exist
+//function addSampleOrders() {
+//  const orders = getOrders()
 
-  if (orders.length === 0) {
-    // Sample order dates
-    const today = new Date()
-    const yesterday = new Date(today)
-    yesterday.setDate(yesterday.getDate() - 1)
-    const lastWeek = new Date(today)
-    lastWeek.setDate(lastWeek.getDate() - 7)
+//  if (orders.length === 0) {
+//    // Sample order dates
+//    const today = new Date()
+//    const yesterday = new Date(today)
+//    yesterday.setDate(yesterday.getDate() - 1)
+//    const lastWeek = new Date(today)
+//    lastWeek.setDate(lastWeek.getDate() - 7)
 
-    // Sample orders
-    const sampleOrders = [
-      {
-        id: Date.now() - 1000000,
-        date: today.toISOString(),
-        items: [
-          { ...menuItems[0], quantity: 2 },
-          { ...menuItems[3], quantity: 1 },
-        ],
-        total: menuItems[0].price * 2 + menuItems[3].price,
-        status: "Processing",
-      },
-      {
-        id: Date.now() - 2000000,
-        date: yesterday.toISOString(),
-        items: [
-          { ...menuItems[1], quantity: 1 },
-          { ...menuItems[5], quantity: 1 },
-        ],
-        total: menuItems[1].price + menuItems[5].price,
-        status: "Completed",
-      },
-      {
-        id: Date.now() - 3000000,
-        date: lastWeek.toISOString(),
-        items: [
-          { ...menuItems[2], quantity: 1 },
-          { ...menuItems[4], quantity: 2 },
-          { ...menuItems[7], quantity: 1 },
-        ],
-        total: menuItems[2].price + menuItems[4].price * 2 + menuItems[7].price,
-        status: "Completed",
-      },
-    ]
+//    // Sample orders
+//    const sampleOrders = [
+//      {
+//        id: Date.now() - 1000000,
+//        date: today.toISOString(),
+//        items: [
+//          { ...menuItems[0], quantity: 2 },
+//          { ...menuItems[3], quantity: 1 },
+//        ],
+//        total: menuItems[0].price * 2 + menuItems[3].price,
+//        status: "Processing",
+//      },
+//      {
+//        id: Date.now() - 2000000,
+//        date: yesterday.toISOString(),
+//        items: [
+//          { ...menuItems[1], quantity: 1 },
+//          { ...menuItems[5], quantity: 1 },
+//        ],
+//        total: menuItems[1].price + menuItems[5].price,
+//        status: "Completed",
+//      },
+//      {
+//        id: Date.now() - 3000000,
+//        date: lastWeek.toISOString(),
+//        items: [
+//          { ...menuItems[2], quantity: 1 },
+//          { ...menuItems[4], quantity: 2 },
+//          { ...menuItems[7], quantity: 1 },
+//        ],
+//        total: menuItems[2].price + menuItems[4].price * 2 + menuItems[7].price,
+//        status: "Completed",
+//      },
+//    ]
 
-    localStorage.setItem("orders", JSON.stringify(sampleOrders))
-  }
-}
+//    localStorage.setItem("orders", JSON.stringify(sampleOrders))
+//  }
+//}
 
 // Initialize the page
 document.addEventListener("DOMContentLoaded", () => {
   // Add sample orders for testing
   //addSampleOrders()
-
   init()
 })
