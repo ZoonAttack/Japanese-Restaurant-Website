@@ -78,7 +78,11 @@ const confirmLogout = document.getElementById('confirmLogout');
 
 // Initialize the page
 function init() {
-    //getUserData();
+    const accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+        window.location.replace('/SignIn/signin.html');  // no token → redirect
+        return;
+    }
     getMenuData();
     setupEventListeners();
     setupIngredientsModal();
@@ -429,6 +433,9 @@ async function checkout() {
         date: currentDate,
         items: cart.map(item => ({
             productId: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price
         })),
         total: totalPrice
     };
@@ -445,7 +452,10 @@ async function checkout() {
         }
 
         const data = await res.json();
-        console.log('Checkout successful:', data);
+        alert('Thank you for your order!');
+        //console.log('Checkout successful:', data);
+        cart = [];
+        updateCart();
     } catch (error) {
         console.error('Checkout error:', error);
     }
@@ -501,11 +511,6 @@ async function getMenuData() {
 }
 // Initialize the page
 document.addEventListener('DOMContentLoaded', () => {
-    const accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken) {
-        window.location.replace('/SignIn/signin.html');  // no token → redirect
-        return;
-    }
     init();
     loadCart();
 });

@@ -93,8 +93,13 @@ let orderToReorder = null
 
 // Initialize the page
 async function init() {
-  await loadOrders()
-  setupEventListeners()
+    const accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+        window.location.replace('/SignIn/signin.html');  // no token → redirect
+        return;
+    }
+    await loadOrders()
+    setupEventListeners()
 }
 
 // Setup event listeners

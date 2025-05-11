@@ -1,7 +1,7 @@
 ﻿
 namespace JapaneseResturant_ASP.NET.Dtos
 {
-    public record class OrderDto(
+    public record class OrderDetailsDto(
         int id,
         string Status,
         DateTime OrderDate,

@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Azure.Core;
 using JapaneseRestaurantModel.Data;
 using JapaneseRestaurantModel.Entities;
 using JapaneseResturant_ASP.NET.Dtos;
@@ -50,7 +51,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 var orders = await dbContext.Orders
                         .AsNoTracking()
                         .Where(o => o.UserId == userId)
-                        .Select(o => new OrderDto(
+                        .Select(o => new OrderDetailsDto(
                             o.Id,
                             o.Status.ToString(),              
                             o.OrderDate,                      
@@ -69,14 +70,42 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 return Results.Ok(orders);
             }).RequireAuthorization();
 
-            app.MapPost("/updateorders", async (HttpContext context, OrderDto dto, AppDbContext dbContext) =>
+            app.MapPost("/updateorders", async (HttpContext context,[FromBody] CheckoutRequestDto dto, AppDbContext dbContext) =>
             {
                 //First we get user ID
                 var userId = context.User.Claims
                     .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                     ?.Value;
 
-                //Parse needed data(item data, order
+                if (string.IsNullOrEmpty(userId))
+                    return Results.BadRequest("Unauthorized");
+                if (dto.Items == null || !dto.Items.Any())
+                    return Results.BadRequest("No items provided.");
+
+                //Parse needed data(DateTime Date,List<int> dishesId, decimal totalPrice)
+                var order = await dbContext.Orders.AddAsync(new Order()
+                { 
+                    UserId = userId,
+                    Status = Status.Pending,
+                    OrderDate = dto.Date,
+                    DeliveryTime = new TimeOnly(10, 30),
+                    TotalPrice = dto.Total
+                });
+                await dbContext.SaveChangesAsync();
+
+                foreach (var request in dto.Items)
+                {
+                    await dbContext.OrderItems.AddAsync(new OrderItem()
+                    {
+                        OrderId = order.Entity.Id,
+                        DishId = request.ProductId,
+                        Quantity = request.Quantity,
+                        SubTotal = request.Price
+                    });
+                }
+                await dbContext.SaveChangesAsync();
+
+                return Results.Ok("Order stored");
             }).RequireAuthorization();
         }
     }

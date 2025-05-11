@@ -18,7 +18,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url('../images/Japanese-street-food.webp'); /* Updated to your image */
+    background-image: url('/Images/thomas-marban-Background.jpg'); /* Updated to your image */
     background-size: cover;
     background-position: center;
     position: relative;

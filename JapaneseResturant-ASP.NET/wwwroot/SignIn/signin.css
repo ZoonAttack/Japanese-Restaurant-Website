@@ -7,7 +7,7 @@
 }
 
 body {
-    background-image: url('../Images/Japanese-street-food.webp'); /* Add your background image path here */
+    background-image: url('/Images/thomas-marban-Background.jpg'); /* Add your background image path here */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -47,7 +47,7 @@ h1 {
 }
 
 /* Input fields */
-input[type="tel"],
+input[type="email"],
 input[type="password"] {
     width: 100%;
     padding: 12px 15px;
@@ -57,7 +57,7 @@ input[type="password"] {
     transition: border-color 0.3s;
 }
 
-input[type="tel"]:focus,
+input[type="email"]:focus,
 input[type="password"]:focus {
     border-color: #dc143c;
     outline: none;

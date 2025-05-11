@@ -3,7 +3,7 @@
     public record class SignUpDto(
         string Name,
         string Email,
-        string Password,
-        string Role
+        string Password
+        //string Role
         );
 }
