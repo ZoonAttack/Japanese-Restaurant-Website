@@ -360,16 +360,16 @@ function hideOrderModal() {
 // Show reorder confirmation modal
 function showReorderConfirmation(order) {
   // If called from reorderBtn in order details modal
-  if (!order) {
+    if (!order) {
+        console.log("At assigning currentorder to order");
     order = currentOrder
     hideOrderModal()
   }
   
   orderToReorder = order
   // Create items list for reorder confirmation
-    if (!Array.isArray(order.items)) {
-        console.warn("Malformed or missing order.items", order)
-    }
+    console.log("Order", order);
+
     const items = Array.isArray(order.items) ? order.items : []
 
 
