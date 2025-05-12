@@ -538,9 +538,22 @@ function hideLogoutModal() {
 }
 
 // Handle logout confirmation
-function handleLogout() {
-  // Redirect to signin page
-  window.location.href = "../../SignIn/signin.html"
+async function handleLogout() {
+    // Redirect to signin page
+    const response = await authFetch("/logout", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+
+    if (response.ok) {
+        sessionStorage.clear();
+        window.location.replace("/SignIn/signin.html")
+    }
+    else {
+        alert(response.text())
+    }
 }
 
 // Print receipt

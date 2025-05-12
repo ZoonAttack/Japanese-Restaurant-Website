@@ -412,11 +412,11 @@ async function handleLogout() {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
-        },
-        body: JSON.stringify({})
+        }
     });
 
     if (response.ok) {
+        sessionStorage.clear();
         window.location.replace("/SignIn/signin.html")
     }
     else {
@@ -443,15 +443,14 @@ async function checkout() {
     try {
         const res = await authFetch('/updateorders', {
             method: 'POST',
-            body: JSON.stringify(payload),
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
 
         if (!res.ok) {
             throw new Error('Failed to checkout');
         }
 
-        const data = await res.json();
         alert('Thank you for your order!');
         //console.log('Checkout successful:', data);
         cart = [];
