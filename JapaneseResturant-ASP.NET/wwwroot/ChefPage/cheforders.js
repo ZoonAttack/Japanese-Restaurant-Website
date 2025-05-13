@@ -1,5 +1,4 @@
-﻿
-async function regenerateToken() {
+﻿async function regenerateToken() {
     var refreshToken = sessionStorage.getItem("refreshToken");
     console.log(refreshToken);
     if (!refreshToken) {
@@ -57,10 +56,9 @@ async function authFetch(input, init = {}) {
 }
 
     // Sample orders data
-const orders = [
-];
+let orders = [];
 async function init() {
-    getOrders();
+    await getOrders();
     renderOrders();
     setupEventListeners();
 }
@@ -79,7 +77,8 @@ async function getOrders() {
     })
     if (response.ok) {
 
-        ordersList = await response.json();
+        orders = await response.json();
+        console.log(orders);
         renderOrders();
     }
     else {
@@ -102,22 +101,20 @@ function renderOrders(filter = 'all') {
         const orderElement = document.createElement('div');
         orderElement.className = 'order-card';
         
-        // Calculate total
-        const total = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        
-        // Format time
-        const orderTime = new Date(order.time);
+        const orderTime = new Date(order.orderDate);
         const timeString = orderTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         // Status class
         const statusClass = `status-${order.status}`;
         const statusText = {
-            pending: "Pending Confirmation",
-            preparing: "Preparing",
-            ready: "Ready for Pickup",
-            completed: "Completed"
+            Pending: "Pending Confirmation",
+            In_Prgress: "Preparing",
+            Ready: "Ready for Pickup",
+            Completed: "Completed"
         }[order.status];
-        
+
+        let username = order.customer.split('@')[0];
+
         orderElement.innerHTML = `
             <div class="order-header">
                 <div>
@@ -128,7 +125,7 @@ function renderOrders(filter = 'all') {
             </div>
             
             <div class="order-customer">
-                <strong>Customer:</strong> ${order.customer}
+                <strong>Customer:</strong> ${username}
             </div>
             
             <div class="order-items">
@@ -147,21 +144,21 @@ function renderOrders(filter = 'all') {
             ` : ''}
             
             <div class="order-total">
-                <strong>Total:</strong> EGP ${total}
+                <strong>Total:</strong> EGP ${order.total}
             </div>
             
             <div class="order-actions">
-                ${order.status !== 'pending' ? '' : `
+                ${order.status !== 'Pending' ? '' : `
                     <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'preparing')" 
                         style="background-color: #da0037; color: white;">Confirm Order</button>
                 `}
                 
-                ${order.status !== 'preparing' ? '' : `
+                ${order.status !== 'Preparing' ? '' : `
                     <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'ready')" 
                         style="background-color: #28a745; color: white;">Mark as Ready</button>
                 `}
                 
-                ${order.status !== 'ready' ? '' : `
+                ${order.status !== 'Ready' ? '' : `
                     <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'completed')" 
                         style="background-color: #6c757d; color: white;">Complete Order</button>
                 `}
@@ -210,8 +207,21 @@ function showNotification(message) {
 }
 
 // Logout functions
-function logoutConfirmed() {
-    window.location.href = "../../SignIn/signin.html";
+async function logoutConfirmed() {
+    const response = await authFetch('logout', {
+
+        method: 'POST',
+        header: {
+            "Content-Type": "application/json"
+        }
+    })
+    if (response.ok) {
+        sessionStorage.clear();
+        window.location.replace("/SignIn/signin.html");
+    }
+    else {
+        showNotification('something went wrong', response.text());
+    }
 }
 
 function hideLogoutConfirmation() {

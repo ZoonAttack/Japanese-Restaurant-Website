@@ -12,7 +12,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
     {
         public static RouteGroupBuilder MapChefEndpoints(this WebApplication app)
         {
-            RouteGroupBuilder chefPagesGroup = app.MapGroup("ChefPage/ChefMenuItemsPage");
+            RouteGroupBuilder chefPagesGroup = app.MapGroup("ChefPage/");
             //Fix logout in menu page(dashboard) *** 
             //Prevent back button from enabling them to enter dashboard after logging out *** 
             chefPagesGroup.MapPost("logout", () =>
@@ -53,11 +53,12 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 return Results.Ok("Dish deleted");
             });
 
-            app.MapGet("ChefPage/ChefOrdersPage/getordersdata", async (AppDbContext dbContext) =>
+            chefPagesGroup.MapGet("getordersdata", async (AppDbContext dbContext) =>
             {
                 var query =  await dbContext.Orders.Select(order => new OrderDetailsDto(
 
                     order.Id,
+                    order.User.UserName!,
                     order.Status.ToString(),
                     order.OrderDate,
                     order.DeliveryTime,
