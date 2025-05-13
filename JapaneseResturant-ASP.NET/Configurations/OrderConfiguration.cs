@@ -17,6 +17,11 @@ namespace JapaneseRestaurantModel.Configurations
                 .HasColumnType("VARCHAR")
                 .HasDefaultValue(Status.Pending);
 
+            builder.Property(x => x.Note)
+                .HasConversion<string>()
+                .HasMaxLength(250)
+                .HasColumnType("VARCHAR");
+
             builder.Property(x => x.TotalPrice).HasPrecision(6, 2);
 
             // Order <=N----1=> Customer

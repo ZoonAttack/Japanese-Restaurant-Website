@@ -55,7 +55,7 @@ async function authFetch(input, init = {}) {
 }
 
 // DOM Elements
-const ordersList = document.getElementById("ordersList")
+const orders = document.getElementById("ordersList")
 const emptyOrders = document.getElementById("emptyOrders")
 const orderSearch = document.getElementById("orderSearch")
 const orderFilter = document.getElementById("orderFilter")
@@ -85,7 +85,7 @@ const confirmLogout = document.getElementById("confirmLogout")
 
 // Menu Items Data (for reference in order details)
 const menuItems = []
-let orders = []
+let ordersList = []
 // Current order being viewed
 let currentOrder = null
 // Order to be reordered
@@ -162,8 +162,8 @@ function setupEventListeners() {
 
 // Load orders from localStorage
 async function loadOrders() {
-    orders = await getOrders()
-    if (orders.length === 0) {
+    ordersList = await getOrders()
+    if (ordersList.length === 0) {
         showEmptyState()
         return
     }
@@ -210,11 +210,11 @@ function hideEmptyState() {
 
 // Render orders
 function renderOrders() {
-    ordersList.innerHTML = ""
+    orders.innerHTML = ""
 
     orders.forEach((order) => {
         const orderCard = createOrderCard(order)
-        ordersList.appendChild(orderCard)
+        orders.appendChild(orderCard)
     })
 }
 
@@ -453,7 +453,7 @@ function showReorderToast() {
 // Redirect to cart page with cart open
 function redirectToCartPage() {
     localStorage.setItem("openCart", "true")
-    window.location.replace("/UserPage/dashboard/dashboard.html");
+    window.location.replace("/UserPage/dashboard.html");
 }
 
 // Filter orders based on search and filter
@@ -480,8 +480,8 @@ async function filterOrders() {
         showEmptyState()
     } else {
         hideEmptyState()
-        ordersList.innerHTML = ""
-        filtered.forEach((order) => ordersList.appendChild(createOrderCard(order)))
+        orders.innerHTML = ""
+        filtered.forEach((order) => orders.appendChild(createOrderCard(order)))
     }
 }
 

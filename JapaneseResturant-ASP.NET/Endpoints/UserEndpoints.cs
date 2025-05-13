@@ -14,15 +14,15 @@ namespace JapaneseResturant_ASP.NET.Endpoints
     {
         public static RouteGroupBuilder MapUserEndpoints(this WebApplication app)
         {
-            RouteGroupBuilder dashboardGroup = app.MapGroup("UserPage/dashboard");
+            RouteGroupBuilder userPageGroup = app.MapGroup("UserPage/");
             //Fix logout in menu page(dashboard) *** done
             //Prevent back button from enabling them to enter dashboard after logging out *** done
-            dashboardGroup.MapPost("logout", () =>
+            userPageGroup.MapPost("logout", () =>
             {
                 return Results.Ok();
             }).RequireAuthorization();
 
-            dashboardGroup.MapGet("/getmenudata", async (HttpContext context, AppDbContext dbContext) =>
+            userPageGroup.MapGet("getmenudata", async (HttpContext context, AppDbContext dbContext) =>
             {
                 //Debugging
                 //var isAuthenticated = context.User.Identity?.IsAuthenticated ?? false;
@@ -37,7 +37,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
             //In the frontend receive those orders and update the UI with those data
             //Would probably convert json to the array just as i did in dashboard for menus
             //Fix filters in the orders page ***
-            dashboardGroup.MapGet("getordersdata", async (HttpContext context, AppDbContext dbContext) =>
+            userPageGroup.MapGet("getordersdata", async (HttpContext context, AppDbContext dbContext) =>
             {
                 var userId = context.User.Claims
                     .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
@@ -51,6 +51,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                         .Where(o => o.UserId == userId)
                         .Select(o => new OrderDetailsDto(
                             o.Id,
+                            o.User.UserName!,
                             o.Status.ToString(),              
                             o.OrderDate,                      
                             o.DeliveryTime,                   
@@ -68,7 +69,8 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 return Results.Ok(orders);
             }).RequireAuthorization().WithName("GetOrders");
 
-            dashboardGroup.MapPost("updateorders", async (HttpContext context,[FromBody] CheckoutRequestDto dto, AppDbContext dbContext) =>
+
+            userPageGroup.MapPost("updateorders", async (HttpContext context,[FromBody] CheckoutRequestDto dto, AppDbContext dbContext) =>
             {
                 //First we get user ID
                 var userId = context.User.Claims
@@ -79,13 +81,19 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                     return Results.BadRequest("Unauthorized");
                 if (dto.Items == null || !dto.Items.Any())
                     return Results.BadRequest("No items provided.");
-
-                var pendingOrders = await dbContext.Orders
-                                    .Include(o => o.OrderItem)
-                                    .Where(o => o.UserId == userId && o.Status == Status.Pending)
-                                    .ToListAsync();
-
-                foreach(var pendingOrder in pendingOrders)
+                List<Order> pendingOrders = null;
+                try
+                {
+                    pendingOrders = await dbContext.Orders
+                        .Include(o => o.OrderItem)
+                        .Where(o => o.UserId == userId && o.Status == Status.Pending)
+                        .ToListAsync();
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem(ex.Message + " | " + ex.InnerException?.Message);
+                };
+                foreach (var pendingOrder in pendingOrders)
                 {
                     var dishIds = pendingOrder.OrderItem.Select(oi => oi.DishId).ToList();
                     var requestDishesIds = dto.Items.Select(i => i.ProductId).ToList();
@@ -135,7 +143,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 return Results.Ok("Order stored");
             }).RequireAuthorization().WithName("UpdateOrder");
 
-            return dashboardGroup;
+            return userPageGroup;
         }
     }
 }

@@ -56,20 +56,26 @@ async function authFetch(input, init = {}) {
 }
 
 // Menu items data
-const menuItems = [];
+let menuItems = [];
 
 // Track item pending deletion
 let itemToDelete = null;
 
-// Initialize the page
-document.addEventListener('DOMContentLoaded', function () {
-    getMenuData()
+
+async function init() {
+    console.log("at init function");
+    await getMenuData()
     renderMenuItems();
     setupEventListeners();
+}
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function () {
+    console.log("At event listener");
+    init();
 });
 async function getMenuData() {
     try {
-        const response = await authFetch('chef/getmenudata');
+        const response = await authFetch('getmenudata');
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -77,9 +83,9 @@ async function getMenuData() {
             return;
         }
 
-        const items = await response.json();
+        let items = await response.json();
         menuItems = items; // Save globally if needed
-
+        console.log(menuItems);
     } catch (error) {
         console.error("Failed to load menu items:", error);
         alert("An error occurred while loading menu items.");
@@ -87,16 +93,18 @@ async function getMenuData() {
 }
 // Render all menu items
 function renderMenuItems() {
+    //console.log("at render function");
     const menuGrid = document.getElementById('menu-items');
     menuGrid.innerHTML = '';
     
     menuItems.forEach(item => {
+        console.log('inside foreach', item);
         const itemElement = document.createElement('div');
         itemElement.className = 'menu-item';
         itemElement.dataset.id = item.id;
         
         itemElement.innerHTML = `
-            <div class="item-image" style="background-image: url('${item.pictureUrl}')"></div>
+            <div class="item-image" style="background-image: url('${item.pictureURL}')"></div>
             <div class="item-details">
                 <h3 class="item-name">${item.name}</h3>
                 <p class="item-price">EGP ${item.price}</p>
@@ -166,35 +174,36 @@ function closeEditPopup() {
     document.getElementById('editForm').reset();
 }
 
-// Save menu item changes
-function saveMenuItem() {
+async function saveMenuItem() {
     const itemId = parseInt(document.getElementById('editItemId').value);
     const itemIndex = menuItems.findIndex(i => i.id === itemId);
     
     if (itemIndex === -1) return;
-    
-    // Update item data
-    menuItems[itemIndex] = {
-        ...menuItems[itemIndex],
+    var payload = {
+        id: itemId,
         name: document.getElementById('editItemName').value,
         price: parseFloat(document.getElementById('editItemPrice').value),
-        description: document.getElementById('editItemDescription').value
+        description: document.getElementById('editItemDescription').value,
+        pictureURL: menuItems[itemIndex].pictureURL 
     };
-    
-    // Handle image upload if changed
-    const imageInput = document.getElementById('editItemImage');
-    if (imageInput.files && imageInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            menuItems[itemIndex].image = e.target.result;
-            renderMenuItems(); // Re-render to show new image
-        };
-        reader.readAsDataURL(imageInput.files[0]);
+    console.log("Item to be updated:", payload);
+    const response = await authFetch('updatedish', {
+
+        method: 'POST',
+        header: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify( payload )
+    })
+    if (response.ok) {
+        closeEditPopup();
+        location.reload();
+        showNotification('Item updated successfully!');
     }
-    
-    closeEditPopup();
-    renderMenuItems();
-    showNotification('Item updated successfully!');
+    else {
+        showNotification('something went wrong',response.text());
+
+    }
 }
 
 // Show delete confirmation dialog
@@ -210,13 +219,26 @@ function hideDeleteConfirmation() {
 }
 
 // Handle confirmed deletion
-function deleteConfirmed() {
+async function deleteConfirmed() {
     if (itemToDelete) {
-        const itemIndex = menuItems.findIndex(i => i.id === itemToDelete);
-        if (itemIndex !== -1) {
-            menuItems.splice(itemIndex, 1);
-            renderMenuItems();
+
+        payload = itemToDelete;
+        const response = await authFetch('deletedish', {
+
+            method: 'POST',
+            header: {
+                "Content-Type": "application/json"
+            },
+            body: payload
+        })
+        if (response.ok) {
+            closeEditPopup();
+            location.reload();
             showNotification('Item deleted successfully!');
+        }
+        else {
+            showNotification('something went wrong', response.text());
+
         }
     }
     hideDeleteConfirmation();
@@ -235,7 +257,7 @@ function hideLogoutConfirmation() {
 // Handle confirmed logout
 async function logoutConfirmed() {
     // Redirect to signin page
-    const response = await authFetch("chef/logout", {
+    const response = await authFetch("logout", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

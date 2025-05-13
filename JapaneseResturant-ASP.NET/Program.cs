@@ -45,7 +45,7 @@ namespace JapaneseResturant_ASP.NET
             app.MapUserEndpoints();
 
 
-           // app.MapChefEndpoints();
+            app.MapChefEndpoints();
             app.MapAccountManagementEndpoints();
 
             using (var scope = app.Services.CreateScope())

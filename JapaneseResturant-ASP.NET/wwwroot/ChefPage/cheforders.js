@@ -1,56 +1,92 @@
-// Sample orders data
-const orders = [
-    {
-        id: 1001,
-        customer: "Mohamed Ali",
-        time: "2023-05-15T12:30:00",
-        status: "pending",
-        items: [
-            { name: "Sushi", quantity: 2, price: 80 },
-            { name: "Miso Soup", quantity: 1, price: 60 }
-        ],
-        notes: "Extra wasabi please"
-    },
-    {
-        id: 1002,
-        customer: "Ahmed Samy",
-        time: "2023-05-15T12:45:00",
-        status: "preparing",
-        items: [
-            { name: "Ramen", quantity: 1, price: 100 },
-            { name: "Onigiri", quantity: 3, price: 75 }
-        ]
-    },
-    {
-        id: 1003,
-        customer: "Yasmin Hany",
-        time: "2023-05-15T13:00:00",
-        status: "ready",
-        items: [
-            { name: "Tonkatsu", quantity: 1, price: 120 },
-            { name: "Yakisoba", quantity: 1, price: 100 }
-        ],
-        notes: "No pork in the yakisoba please"
-    },
-    {
-        id: 1004,
-        customer: "Omar Khaled",
-        time: "2023-05-15T13:15:00",
-        status: "completed",
-        items: [
-            { name: "Tempura", quantity: 1, price: 130 },
-            { name: "Curry Rice", quantity: 1, price: 90 }
-        ]
+﻿async function regenerateToken() {
+    var refreshToken = sessionStorage.getItem("refreshToken");
+    console.log(refreshToken);
+    if (!refreshToken) {
+        alert("You need to login again!")
+        return;
     }
-];
+    const response = await fetch("/refresh", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken })
+    });
 
-// Initialize the page
-document.addEventListener('DOMContentLoaded', function() {
+    if (response.ok) {
+        // If the response is successful, get the new tokens
+        const responseBody = await response.json();
+        const newAccessToken = responseBody.accessToken;
+        const newRefreshToken = responseBody.refreshToken;
+
+        // Store the new tokens in sessionStorage
+        sessionStorage.setItem('accessToken', newAccessToken);
+        sessionStorage.setItem('refreshToken', newRefreshToken);
+
+        console.log("New access token and refresh token stored.");
+    } else {
+        // Handle the error (e.g., refresh token is invalid or expired)
+        alert("Unable to refresh tokens. Please log in again.");
+    }
+}
+async function authFetch(input, init = {}) {
+    let token = sessionStorage.getItem('accessToken');
+    console.log(token);
+    init.headers = {
+        ...(init.headers || {}),
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+
+    let response = await fetch(input, init);
+    if (response.status !== 401) return response;
+
+    // Attempt token refresh once
+    await regenerateToken();
+    token = sessionStorage.getItem('accessToken');
+    init.headers['Authorization'] = `Bearer ${token}`;
+
+    response = await fetch(input, init);
+    if (response.status === 401) {
+        // Refresh failed → force logout
+        sessionStorage.clear();
+        window.location.replace("/SignIn/signin.html");
+    }
+    return response;
+}
+
+    // Sample orders data
+let orders = [];
+async function init() {
+    await getOrders();
     renderOrders();
     setupEventListeners();
+}
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    init();
 });
 
-// Render all orders
+async function getOrders() {
+    const response = await authFetch('getordersdata', {
+
+        method: 'GET',
+        header: {
+            "Content-Type": "application/json"
+        }
+    })
+    if (response.ok) {
+
+        orders = await response.json();
+        console.log(orders);
+        renderOrders();
+    }
+    else {
+        showNotification('something went wrong', response.text());
+
+    }
+}
+
 function renderOrders(filter = 'all') {
     const ordersList = document.getElementById('ordersList');
     if (!ordersList) return;
@@ -65,22 +101,20 @@ function renderOrders(filter = 'all') {
         const orderElement = document.createElement('div');
         orderElement.className = 'order-card';
         
-        // Calculate total
-        const total = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        
-        // Format time
-        const orderTime = new Date(order.time);
+        const orderTime = new Date(order.orderDate);
         const timeString = orderTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         // Status class
         const statusClass = `status-${order.status}`;
         const statusText = {
-            pending: "Pending Confirmation",
-            preparing: "Preparing",
-            ready: "Ready for Pickup",
-            completed: "Completed"
+            Pending: "Pending Confirmation",
+            In_Prgress: "Preparing",
+            Ready: "Ready for Pickup",
+            Completed: "Completed"
         }[order.status];
-        
+
+        let username = order.customer.split('@')[0];
+
         orderElement.innerHTML = `
             <div class="order-header">
                 <div>
@@ -91,7 +125,7 @@ function renderOrders(filter = 'all') {
             </div>
             
             <div class="order-customer">
-                <strong>Customer:</strong> ${order.customer}
+                <strong>Customer:</strong> ${username}
             </div>
             
             <div class="order-items">
@@ -110,21 +144,21 @@ function renderOrders(filter = 'all') {
             ` : ''}
             
             <div class="order-total">
-                <strong>Total:</strong> EGP ${total}
+                <strong>Total:</strong> EGP ${order.total}
             </div>
             
             <div class="order-actions">
-                ${order.status !== 'pending' ? '' : `
+                ${order.status !== 'Pending' ? '' : `
                     <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'preparing')" 
                         style="background-color: #da0037; color: white;">Confirm Order</button>
                 `}
                 
-                ${order.status !== 'preparing' ? '' : `
+                ${order.status !== 'Preparing' ? '' : `
                     <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'ready')" 
                         style="background-color: #28a745; color: white;">Mark as Ready</button>
                 `}
                 
-                ${order.status !== 'ready' ? '' : `
+                ${order.status !== 'Ready' ? '' : `
                     <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'completed')" 
                         style="background-color: #6c757d; color: white;">Complete Order</button>
                 `}
@@ -173,8 +207,21 @@ function showNotification(message) {
 }
 
 // Logout functions
-function logoutConfirmed() {
-    window.location.href = "../../SignIn/signin.html";
+async function logoutConfirmed() {
+    const response = await authFetch('logout', {
+
+        method: 'POST',
+        header: {
+            "Content-Type": "application/json"
+        }
+    })
+    if (response.ok) {
+        sessionStorage.clear();
+        window.location.replace("/SignIn/signin.html");
+    }
+    else {
+        showNotification('something went wrong', response.text());
+    }
 }
 
 function hideLogoutConfirmation() {
