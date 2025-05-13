@@ -10,21 +10,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JapaneseResturant_ASP.NET.Endpoints
 {
-    public static class DashboardEndpoints
+    public static class UserEndpoints
     {
-        public static void MapDashboardEndpoints(this WebApplication app)
+        public static RouteGroupBuilder MapUserEndpoints(this WebApplication app)
         {
-            app.MapPost("/logout", async (SignInManager<User> signInManager, UserManager<User> UserManager, [FromBody] object empty) =>
+            RouteGroupBuilder dashboardGroup = app.MapGroup("UserPage/dashboard");
+            //Fix logout in menu page(dashboard) *** done
+            //Prevent back button from enabling them to enter dashboard after logging out *** done
+            dashboardGroup.MapPost("logout", () =>
             {
-                if (empty != null)
-                {
-                    await signInManager.SignOutAsync();
-                    return Results.Ok();
-                }
-                return Results.Unauthorized();
+                return Results.Ok();
             }).RequireAuthorization();
 
-            app.MapGet("/getmenudata", async (HttpContext context, AppDbContext dbContext) =>
+            dashboardGroup.MapGet("/getmenudata", async (HttpContext context, AppDbContext dbContext) =>
             {
                 //Debugging
                 //var isAuthenticated = context.User.Identity?.IsAuthenticated ?? false;
@@ -33,13 +31,13 @@ namespace JapaneseResturant_ASP.NET.Endpoints
 
                 var dishes = await dbContext.Dishes.Select(x => x.ToDto()).ToListAsync();
                 return Results.Ok(dishes);
-            }).RequireAuthorization();
+            }).RequireAuthorization().WithName("GetMenu");
 
             //After getting the email. get the orders for the user with THAT email and return them.
             //In the frontend receive those orders and update the UI with those data
             //Would probably convert json to the array just as i did in dashboard for menus
-
-            app.MapGet("/getordersdata", async (HttpContext context, AppDbContext dbContext) =>
+            //Fix filters in the orders page ***
+            dashboardGroup.MapGet("getordersdata", async (HttpContext context, AppDbContext dbContext) =>
             {
                 var userId = context.User.Claims
                     .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
@@ -68,9 +66,9 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                         .ToListAsync();
 
                 return Results.Ok(orders);
-            }).RequireAuthorization();
+            }).RequireAuthorization().WithName("GetOrders");
 
-            app.MapPost("/updateorders", async (HttpContext context,[FromBody] CheckoutRequestDto dto, AppDbContext dbContext) =>
+            dashboardGroup.MapPost("updateorders", async (HttpContext context,[FromBody] CheckoutRequestDto dto, AppDbContext dbContext) =>
             {
                 //First we get user ID
                 var userId = context.User.Claims
@@ -82,22 +80,51 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 if (dto.Items == null || !dto.Items.Any())
                     return Results.BadRequest("No items provided.");
 
-                //Parse needed data(DateTime Date,List<int> dishesId, decimal totalPrice)
-                var order = await dbContext.Orders.AddAsync(new Order()
+                var pendingOrders = await dbContext.Orders
+                                    .Include(o => o.OrderItem)
+                                    .Where(o => o.UserId == userId && o.Status == Status.Pending)
+                                    .ToListAsync();
+
+                foreach(var pendingOrder in pendingOrders)
+                {
+                    var dishIds = pendingOrder.OrderItem.Select(oi => oi.DishId).ToList();
+                    var requestDishesIds = dto.Items.Select(i => i.ProductId).ToList();
+
+                    //Existing order!!
+                    if (dishIds.SequenceEqual(requestDishesIds))
+                    {
+                        foreach(var updatedItem in dto.Items)
+                        {
+                            var item = pendingOrder.OrderItem.First(pi => pi.DishId == updatedItem.ProductId);
+
+                            item.Quantity += updatedItem.Quantity;
+                            item.SubTotal += updatedItem.Quantity * updatedItem.Price;
+                        }
+                        pendingOrder.TotalPrice = pendingOrder.OrderItem.Sum(oi => oi.SubTotal);
+                        pendingOrder.OrderDate = DateTime.Now;
+                        pendingOrder.DeliveryTime = new TimeOnly(12,00);
+
+                        await dbContext.SaveChangesAsync();
+                        return Results.Ok();
+                    }
+                }
+
+                //No Existing order
+                Order order = dbContext.Orders.Add( new Order()
                 { 
                     UserId = userId,
                     Status = Status.Pending,
                     OrderDate = dto.Date,
-                    DeliveryTime = new TimeOnly(10, 30),
+                    DeliveryTime = new TimeOnly(),
                     TotalPrice = dto.Total
-                });
+                }).Entity;
                 await dbContext.SaveChangesAsync();
 
                 foreach (var request in dto.Items)
                 {
                     await dbContext.OrderItems.AddAsync(new OrderItem()
                     {
-                        OrderId = order.Entity.Id,
+                        OrderId = order.Id,
                         DishId = request.ProductId,
                         Quantity = request.Quantity,
                         SubTotal = request.Price
@@ -106,7 +133,9 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 await dbContext.SaveChangesAsync();
 
                 return Results.Ok("Order stored");
-            }).RequireAuthorization();
+            }).RequireAuthorization().WithName("UpdateOrder");
+
+            return dashboardGroup;
         }
     }
 }

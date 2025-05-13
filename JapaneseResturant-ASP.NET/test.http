@@ -16,4 +16,4 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:5267/getordersdata
+GET http://localhost:5267/getmenudata

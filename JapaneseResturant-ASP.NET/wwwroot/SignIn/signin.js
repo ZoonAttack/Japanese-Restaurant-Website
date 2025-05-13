@@ -18,11 +18,23 @@
         sessionStorage.setItem("refreshToken", data.refreshToken);
 
         // Optional: log the token to debug
-        console.log("accessToken:", data.accessToken);
-        console.log("refreshToken:", data.refreshToken);
+        // console.log("accessToken:", data.accessToken);
+        // console.log("refreshToken:", data.refreshToken);
 
-        // Redirect only if login is successful
-        window.location.replace("/UserPage/dashboard/dashboard.html");
+        // If login is successful, fetch the user's roles
+        const res = await fetch("/me", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${data.accessToken}` // Include the token in the Authorization header
+            }
+        });
+
+        const userData = await res.json();
+        //console.log(userData);
+        if (userData.roles.includes("user")) {
+            window.location.replace("/UserPage/dashboard/dashboard.html");
+        }
     } else {
         const error = await response.text();
         alert("Login failed: " + error);

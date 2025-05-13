@@ -54,7 +54,7 @@ async function authFetch(input, init = {}) {
     }
     return response;
 }
-let cart = [];
+let cart = []
 let menuItems = []; 
 // DOM Elements
 const menuGrid = document.querySelector('.menu-grid');
@@ -281,7 +281,7 @@ function removeFromCart(itemId) {
 
 // Update cart UI
 function updateCart() {
-    console.log("(at updateCart) cart: ", cart);
+    //console.log("(at updateCart) cart: ", cart);
     // Update cart counter
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
     cartCounter.textContent = totalItems;
@@ -293,7 +293,7 @@ function updateCart() {
     const total = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
     cartTotal.textContent = `EGP ${total}`;
 
-    // Save cart to localStorage
+    // Save cart to sessionStorage
     sessionStorage.setItem('cart', JSON.stringify(cart));
 }
 
@@ -408,15 +408,15 @@ function hideLogoutModal() {
 // Handle logout confirmation
 async function handleLogout() {
     // Redirect to signin page
-    const response = await authFetch("/logout", {
+    const response = await authFetch("logout", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
-        },
-        body: JSON.stringify({})
+        }
     });
 
     if (response.ok) {
+        sessionStorage.clear();
         window.location.replace("/SignIn/signin.html")
     }
     else {
@@ -441,17 +441,16 @@ async function checkout() {
     };
 
     try {
-        const res = await authFetch('/updateorders', {
+        const res = await authFetch('updateorders', {
             method: 'POST',
-            body: JSON.stringify(payload),
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
 
         if (!res.ok) {
             throw new Error('Failed to checkout');
         }
 
-        const data = await res.json();
         alert('Thank you for your order!');
         //console.log('Checkout successful:', data);
         cart = [];
@@ -471,7 +470,7 @@ function loadCart() {
 }
 async function getMenuData() {
     try {
-        const response = await authFetch('/getmenudata');
+        const response = await authFetch('getmenudata');
 
         if (!response.ok) {
             const errorText = await response.text();
