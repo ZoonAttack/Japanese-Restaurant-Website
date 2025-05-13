@@ -453,7 +453,7 @@ function showReorderToast() {
 // Redirect to cart page with cart open
 function redirectToCartPage() {
     localStorage.setItem("openCart", "true")
-    window.location.replace("/UserPage/dashboard/dashboard.html");
+    window.location.replace("/UserPage/dashboard.html");
 }
 
 // Filter orders based on search and filter

@@ -429,6 +429,7 @@ async function checkout() {
     const currentDate = new Date().toISOString();
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
+    //Need to add note! and a widget to enter the note when checkout is pressed
     const payload = {
         date: currentDate,
         items: cart.map(item => ({

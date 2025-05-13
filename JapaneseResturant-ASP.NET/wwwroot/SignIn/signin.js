@@ -33,7 +33,7 @@
         const userData = await res.json();
         //console.log(userData);
         if (userData.roles.includes("user")) {
-            window.location.replace("/UserPage/dashboard/dashboard.html");
+            window.location.replace("/UserPage/dashboard.html");
         }
         else {
             window.location.replace("/ChefPage/ChefMenuItemsPage/chefmenuitems.html");

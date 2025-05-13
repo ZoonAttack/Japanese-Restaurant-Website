@@ -4,6 +4,7 @@ using JapaneseResturant_ASP.NET.Mappers;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
 
 namespace JapaneseResturant_ASP.NET.Endpoints
 {
@@ -51,6 +52,27 @@ namespace JapaneseResturant_ASP.NET.Endpoints
 
                 return Results.Ok("Dish deleted");
             });
+
+            app.MapGet("ChefPage/ChefOrdersPage/getordersdata", async (AppDbContext dbContext) =>
+            {
+                var query =  await dbContext.Orders.Select(order => new OrderDetailsDto(
+
+                    order.Id,
+                    order.Status.ToString(),
+                    order.OrderDate,
+                    order.DeliveryTime,
+                    order.TotalPrice,
+                    order.OrderItem.Select(oi => new OrderItemsDto(
+                        oi.DishId,
+                        oi.Dish.Name!,
+                        oi.Dish.Price,
+                        oi.Quantity,
+                        oi.Dish.PictureURL!
+                    )).ToList<OrderItemsDto>())).ToListAsync();
+                return query;
+            });
+
+
             return chefPagesGroup;
         }
     }

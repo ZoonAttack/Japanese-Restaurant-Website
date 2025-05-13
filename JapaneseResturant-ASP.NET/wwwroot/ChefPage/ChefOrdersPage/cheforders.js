@@ -1,56 +1,93 @@
-// Sample orders data
-const orders = [
-    {
-        id: 1001,
-        customer: "Mohamed Ali",
-        time: "2023-05-15T12:30:00",
-        status: "pending",
-        items: [
-            { name: "Sushi", quantity: 2, price: 80 },
-            { name: "Miso Soup", quantity: 1, price: 60 }
-        ],
-        notes: "Extra wasabi please"
-    },
-    {
-        id: 1002,
-        customer: "Ahmed Samy",
-        time: "2023-05-15T12:45:00",
-        status: "preparing",
-        items: [
-            { name: "Ramen", quantity: 1, price: 100 },
-            { name: "Onigiri", quantity: 3, price: 75 }
-        ]
-    },
-    {
-        id: 1003,
-        customer: "Yasmin Hany",
-        time: "2023-05-15T13:00:00",
-        status: "ready",
-        items: [
-            { name: "Tonkatsu", quantity: 1, price: 120 },
-            { name: "Yakisoba", quantity: 1, price: 100 }
-        ],
-        notes: "No pork in the yakisoba please"
-    },
-    {
-        id: 1004,
-        customer: "Omar Khaled",
-        time: "2023-05-15T13:15:00",
-        status: "completed",
-        items: [
-            { name: "Tempura", quantity: 1, price: 130 },
-            { name: "Curry Rice", quantity: 1, price: 90 }
-        ]
+﻿
+async function regenerateToken() {
+    var refreshToken = sessionStorage.getItem("refreshToken");
+    console.log(refreshToken);
+    if (!refreshToken) {
+        alert("You need to login again!")
+        return;
     }
-];
+    const response = await fetch("/refresh", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken })
+    });
 
-// Initialize the page
-document.addEventListener('DOMContentLoaded', function() {
+    if (response.ok) {
+        // If the response is successful, get the new tokens
+        const responseBody = await response.json();
+        const newAccessToken = responseBody.accessToken;
+        const newRefreshToken = responseBody.refreshToken;
+
+        // Store the new tokens in sessionStorage
+        sessionStorage.setItem('accessToken', newAccessToken);
+        sessionStorage.setItem('refreshToken', newRefreshToken);
+
+        console.log("New access token and refresh token stored.");
+    } else {
+        // Handle the error (e.g., refresh token is invalid or expired)
+        alert("Unable to refresh tokens. Please log in again.");
+    }
+}
+async function authFetch(input, init = {}) {
+    let token = sessionStorage.getItem('accessToken');
+    console.log(token);
+    init.headers = {
+        ...(init.headers || {}),
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+
+    let response = await fetch(input, init);
+    if (response.status !== 401) return response;
+
+    // Attempt token refresh once
+    await regenerateToken();
+    token = sessionStorage.getItem('accessToken');
+    init.headers['Authorization'] = `Bearer ${token}`;
+
+    response = await fetch(input, init);
+    if (response.status === 401) {
+        // Refresh failed → force logout
+        sessionStorage.clear();
+        window.location.replace("/SignIn/signin.html");
+    }
+    return response;
+}
+
+    // Sample orders data
+const orders = [
+];
+async function init() {
+    getOrders();
     renderOrders();
     setupEventListeners();
+}
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    init();
 });
 
-// Render all orders
+async function getOrders() {
+    const response = await authFetch('getordersdata', {
+
+        method: 'GET',
+        header: {
+            "Content-Type": "application/json"
+        }
+    })
+    if (response.ok) {
+
+        ordersList = await response.json();
+        renderOrders();
+    }
+    else {
+        showNotification('something went wrong', response.text());
+
+    }
+}
+
 function renderOrders(filter = 'all') {
     const ordersList = document.getElementById('ordersList');
     if (!ordersList) return;

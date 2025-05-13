@@ -8,7 +8,7 @@
         public DateTime OrderDate { get; set; }
         public TimeOnly DeliveryTime { get; set; }
         public decimal TotalPrice { get; set; }
-
+        public string? Note { get; set; }
         public ICollection<OrderItem> OrderItem { get; set; } = new List<OrderItem>();
         public User User { set; get; } = null!; // required
     }
@@ -16,6 +16,7 @@
     {
         Pending,
         In_Prgress,
+        Ready,
         Completed
     }
 }

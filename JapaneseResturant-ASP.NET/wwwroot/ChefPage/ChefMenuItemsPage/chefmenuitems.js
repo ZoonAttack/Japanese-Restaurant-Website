@@ -257,7 +257,7 @@ function hideLogoutConfirmation() {
 // Handle confirmed logout
 async function logoutConfirmed() {
     // Redirect to signin page
-    const response = await authFetch("/logout", {
+    const response = await authFetch("logout", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
