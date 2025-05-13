@@ -121,6 +121,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 Order order = dbContext.Orders.Add( new Order()
                 { 
                     UserId = userId,
+                    Note = dto.note,
                     Status = Status.Pending,
                     OrderDate = dto.Date,
                     DeliveryTime = new TimeOnly(),

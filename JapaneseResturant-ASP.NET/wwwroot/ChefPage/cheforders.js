@@ -137,9 +137,9 @@ function renderOrders(filter = 'all') {
                 `).join('')}
             </div>
             
-            ${order.notes ? `
+            ${order.note ? `
             <div class="order-notes">
-                <strong>Notes:</strong> ${order.notes}
+                <strong>Notes:</strong> ${order.note}
             </div>
             ` : ''}
             
@@ -181,13 +181,20 @@ function filterOrders(status) {
 }
 
 // Update order status
-function updateOrderStatus(orderId, newStatus) {
-    const orderIndex = orders.findIndex(order => order.id === orderId);
-    if (orderIndex !== -1) {
-        orders[orderIndex].status = newStatus;
-        const activeFilter = document.querySelector('.status-btn.active').textContent.toLowerCase().replace(' orders', '');
-        renderOrders(activeFilter === 'all' ? 'all' : activeFilter);
-        showNotification(`Order #${orderId} status updated to ${newStatus}`);
+async function updateOrderStatus(orderId, newStatus) {
+    const response = await authFetch('updateorderstatus', {
+
+        method: 'POST',
+        header: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({orderId, newStatus})
+    })
+    if (response.ok) {
+        location.reload();
+    }
+    else {
+        showNotification('something went wrong', response.text());
     }
 }
 

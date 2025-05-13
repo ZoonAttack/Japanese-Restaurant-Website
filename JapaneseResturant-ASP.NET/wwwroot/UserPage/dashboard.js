@@ -428,10 +428,11 @@ async function handleLogout() {
 async function checkout() {
     const currentDate = new Date().toISOString();
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
+    let orderNote = "hey";
     //Need to add note! and a widget to enter the note when checkout is pressed
     const payload = {
         date: currentDate,
+        note: orderNote,
         items: cart.map(item => ({
             productId: item.id,
             name: item.name,

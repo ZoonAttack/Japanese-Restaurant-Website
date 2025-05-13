@@ -85,7 +85,7 @@ const confirmLogout = document.getElementById("confirmLogout")
 
 // Menu Items Data (for reference in order details)
 const menuItems = []
-let ordersList = []
+let orderList = []
 // Current order being viewed
 let currentOrder = null
 // Order to be reordered
@@ -162,8 +162,8 @@ function setupEventListeners() {
 
 // Load orders from localStorage
 async function loadOrders() {
-    ordersList = await getOrders()
-    if (ordersList.length === 0) {
+    orderList = await getOrders()
+    if (orderList.length === 0) {
         showEmptyState()
         return
     }
@@ -212,7 +212,7 @@ function hideEmptyState() {
 function renderOrders() {
     orders.innerHTML = ""
 
-    orders.forEach((order) => {
+    orderList.forEach((order) => {
         const orderCard = createOrderCard(order)
         orders.appendChild(orderCard)
     })
@@ -405,8 +405,9 @@ async function confirmReorderItems() {
     if (orderToReorder) {
         const payload = {
             date: new Date().toISOString(),
+            note: "hey",
             items: orderToReorder.items.map(item => ({
-                productId: item.productId,
+                productId: item.dishId,
                 name: item.name,
                 quantity: item.quantity,
                 price: item.price
@@ -430,25 +431,11 @@ async function confirmReorderItems() {
             console.error('Checkout error:', error);
         }
         hideReorderModal()
-        showReorderToast()
+        location.reload();
     }
 }
 
 // Show reorder success toast
-function showReorderToast() {
-    const toastContent = document.querySelector(".toast-content p")
-    if (toastContent) {
-        toastContent.textContent = "Items added to cart!"
-    }
-    const viewCartBtn = document.querySelector(".toast-actions .btn")
-    if (viewCartBtn) {
-        viewCartBtn.textContent = "View Cart"
-        viewCartBtn.href = "javascript:void(0);"
-        viewCartBtn.onclick = redirectToCartPage
-    }
-    reorderToast.classList.add("active")
-    setTimeout(() => reorderToast.classList.remove("active"), 5000)
-}
 
 // Redirect to cart page with cart open
 function redirectToCartPage() {
@@ -461,7 +448,7 @@ async function filterOrders() {
     const searchTerm = orderSearch.value.toLowerCase()
     const filterValue = orderFilter.value
 
-    let filtered = [...orders]
+    let filtered = [...orderList]
 
     if (searchTerm) {
         filtered = filtered.filter((order) => {

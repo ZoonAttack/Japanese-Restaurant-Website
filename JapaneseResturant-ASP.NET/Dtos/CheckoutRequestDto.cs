@@ -3,6 +3,7 @@
     public record class CheckoutRequestDto
     (
              DateTime Date,
+             string? note,
              List<CheckoutItemDto> Items,
              decimal Total
     );
