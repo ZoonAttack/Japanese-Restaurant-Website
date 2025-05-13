@@ -35,6 +35,9 @@
         if (userData.roles.includes("user")) {
             window.location.replace("/UserPage/dashboard/dashboard.html");
         }
+        else {
+            window.location.replace("/ChefPage/ChefMenuItemsPage/chefmenuitems.html");
+        }
     } else {
         const error = await response.text();
         alert("Login failed: " + error);
