@@ -1,58 +1,90 @@
-// Menu items data
-const menuItems = [
-    {
-        id: 1,
-        name: "Sushi",
-        price: 80,
-        description: "Fresh raw fish over rice",
-        image: "https://static.tildacdn.info/tild6461-6235-4466-b438-303030376464/close-up-plate-with-.jpg"
-    },
-    {
-        id: 2,
-        name: "Ramen",
-        price: 100,
-        description: "Japanese noodle soup",
-        image: "https://static.tildacdn.info/tild6634-3632-4466-b430-363130383564/ramen.jpg"
-    },
-    {
-        id: 3,
-        name: "Yakisoba",
-        price: 100,
-        description: "Stir-fried noodles",
-        image: "https://static.tildacdn.info/tild6131-3637-4736-a331-636438333435/Chicken-Yakisoba.jpg"
-    },
-    {
-        id: 4,
-        name: "Tonkatsu",
-        price: 120,
-        description: "Breaded pork cutlet",
-        image: "https://static.tildacdn.info/tild3033-3561-4332-b864-356639313161/Tonkatsu.jpg"
-    },
-    {
-        id: 5,
-        name: "Onigiri",
-        price: 75,
-        description: "Rice ball with filling",
-        image: "https://static.tildacdn.info/tild3461-3031-4364-b265-333132343337/Onigiri.jpg"
-    },
-    {
-        id: 6,
-        name: "Miso Soup",
-        price: 60,
-        description: "Traditional Japanese soup",
-        image: "https://static.tildacdn.info/tild6134-3431-4565-b238-343061333238/steaming-bowl-miso-s.jpg"
+﻿async function regenerateToken() {
+    var refreshToken = sessionStorage.getItem("refreshToken");
+    console.log(refreshToken);
+    if (!refreshToken) {
+        alert("You need to login again!")
+        return;
     }
-];
+    const response = await fetch("/refresh", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken })
+    });
+
+    if (response.ok) {
+        // If the response is successful, get the new tokens
+        const responseBody = await response.json();
+        const newAccessToken = responseBody.accessToken;
+        const newRefreshToken = responseBody.refreshToken;
+
+        // Store the new tokens in sessionStorage
+        sessionStorage.setItem('accessToken', newAccessToken);
+        sessionStorage.setItem('refreshToken', newRefreshToken);
+
+        console.log("New access token and refresh token stored.");
+    } else {
+        // Handle the error (e.g., refresh token is invalid or expired)
+        alert("Unable to refresh tokens. Please log in again.");
+    }
+}
+async function authFetch(input, init = {}) {
+    let token = sessionStorage.getItem('accessToken');
+    console.log(token);
+    init.headers = {
+        ...(init.headers || {}),
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+
+    let response = await fetch(input, init);
+    if (response.status !== 401) return response;
+
+    // Attempt token refresh once
+    await regenerateToken();
+    token = sessionStorage.getItem('accessToken');
+    init.headers['Authorization'] = `Bearer ${token}`;
+
+    response = await fetch(input, init);
+    if (response.status === 401) {
+        // Refresh failed → force logout
+        sessionStorage.clear();
+        window.location.replace("/SignIn/signin.html");
+    }
+    return response;
+}
+
+// Menu items data
+const menuItems = [];
 
 // Track item pending deletion
 let itemToDelete = null;
 
 // Initialize the page
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    getMenuData()
     renderMenuItems();
     setupEventListeners();
 });
+async function getMenuData() {
+    try {
+        const response = await authFetch('chef/getmenudata');
 
+        if (!response.ok) {
+            const errorText = await response.text();
+            alert(errorText);
+            return;
+        }
+
+        const items = await response.json();
+        menuItems = items; // Save globally if needed
+
+    } catch (error) {
+        console.error("Failed to load menu items:", error);
+        alert("An error occurred while loading menu items.");
+    }
+}
 // Render all menu items
 function renderMenuItems() {
     const menuGrid = document.getElementById('menu-items');
@@ -64,7 +96,7 @@ function renderMenuItems() {
         itemElement.dataset.id = item.id;
         
         itemElement.innerHTML = `
-            <div class="item-image" style="background-image: url('${item.image}')"></div>
+            <div class="item-image" style="background-image: url('${item.pictureUrl}')"></div>
             <div class="item-details">
                 <h3 class="item-name">${item.name}</h3>
                 <p class="item-price">EGP ${item.price}</p>
@@ -201,14 +233,22 @@ function hideLogoutConfirmation() {
 }
 
 // Handle confirmed logout
-function logoutConfirmed() {
-    // In a real app, you would typically:
-    // 1. Clear session data
-    // 2. Send logout request to server
-    // 3. Then redirect to login page
-    
-    // For this demo, we'll just redirect immediately
-    window.location.href = "../../SignIn/signin.html";
+async function logoutConfirmed() {
+    // Redirect to signin page
+    const response = await authFetch("chef/logout", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+
+    if (response.ok) {
+        sessionStorage.clear();
+        window.location.replace("/SignIn/signin.html")
+    }
+    else {
+        alert(response.text())
+    }
 }
 
 // Show notification message

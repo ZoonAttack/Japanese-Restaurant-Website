@@ -10,18 +10,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JapaneseResturant_ASP.NET.Endpoints
 {
-    public static class DashboardEndpoints
+    public static class UserEndpoints
     {
-        public static void MapDashboardEndpoints(this WebApplication app)
+        public static RouteGroupBuilder MapUserEndpoints(this WebApplication app)
         {
-            //Fix logout in menu page(dashboard) ***
-            //Prevent back button from enabling them to enter dashboard after logging out ***
-            app.MapPost("/logout", () =>
+            RouteGroupBuilder dashboardGroup = app.MapGroup("UserPage/dashboard");
+            //Fix logout in menu page(dashboard) *** done
+            //Prevent back button from enabling them to enter dashboard after logging out *** done
+            dashboardGroup.MapPost("logout", () =>
             {
                 return Results.Ok();
             }).RequireAuthorization();
 
-            app.MapGet("/getmenudata", async (HttpContext context, AppDbContext dbContext) =>
+            dashboardGroup.MapGet("/getmenudata", async (HttpContext context, AppDbContext dbContext) =>
             {
                 //Debugging
                 //var isAuthenticated = context.User.Identity?.IsAuthenticated ?? false;
@@ -30,13 +31,13 @@ namespace JapaneseResturant_ASP.NET.Endpoints
 
                 var dishes = await dbContext.Dishes.Select(x => x.ToDto()).ToListAsync();
                 return Results.Ok(dishes);
-            }).RequireAuthorization();
+            }).RequireAuthorization().WithName("GetMenu");
 
             //After getting the email. get the orders for the user with THAT email and return them.
             //In the frontend receive those orders and update the UI with those data
             //Would probably convert json to the array just as i did in dashboard for menus
             //Fix filters in the orders page ***
-            app.MapGet("/getordersdata", async (HttpContext context, AppDbContext dbContext) =>
+            dashboardGroup.MapGet("getordersdata", async (HttpContext context, AppDbContext dbContext) =>
             {
                 var userId = context.User.Claims
                     .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
@@ -65,9 +66,9 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                         .ToListAsync();
 
                 return Results.Ok(orders);
-            }).RequireAuthorization();
+            }).RequireAuthorization().WithName("GetOrders");
 
-            app.MapPost("/updateorders", async (HttpContext context,[FromBody] CheckoutRequestDto dto, AppDbContext dbContext) =>
+            dashboardGroup.MapPost("updateorders", async (HttpContext context,[FromBody] CheckoutRequestDto dto, AppDbContext dbContext) =>
             {
                 //First we get user ID
                 var userId = context.User.Claims
@@ -132,7 +133,9 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 await dbContext.SaveChangesAsync();
 
                 return Results.Ok("Order stored");
-            }).RequireAuthorization();
+            }).RequireAuthorization().WithName("UpdateOrder");
+
+            return dashboardGroup;
         }
     }
 }
