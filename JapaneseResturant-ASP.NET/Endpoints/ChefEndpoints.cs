@@ -52,6 +52,38 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 return query;
             });
 
+            chefPagesGroup.MapGet("getstatus", async ([FromBody] int id, AppDbContext dbContext) =>
+            {
+                var order = await dbContext.Orders.SingleOrDefaultAsync(o => o.Id == id);
+                if (order == null) return Results.BadRequest("Order not found");
+
+                // Get the current status
+                Status currentStatus = order.Status;
+
+                // Get all status values
+                var statuses = Enum.GetValues<Status>();
+
+                // Find current status index
+                int currentIndex = Array.IndexOf(statuses, currentStatus);
+
+                // If already at the last status
+                if (currentIndex == -1 || currentIndex >= statuses.Length - 1)
+                {
+                    return Results.Ok(Status.Completed); 
+                }
+
+                // Get the next status
+                Status nextStatus = statuses[currentIndex + 1];
+
+                //Update status first
+                order.Status = nextStatus;
+
+                await dbContext.SaveChangesAsync();
+
+                return Results.Ok(nextStatus.ToString());
+            });
+
+
             chefPagesGroup.MapPost("updatedish", async ([FromBody] DishSummaryDto dto, AppDbContext dbContext) =>
             {
                 var dish = await dbContext.Dishes.FindAsync(dto.Id);
@@ -76,7 +108,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
             Order order = dbContext.Orders.FirstOrDefault(order => order.Id == dto.orderid)!;
 
                 if (order == null) return Results.BadRequest("check request data!");
-                order.Status = Enum.TryParse(dto.status, out Status myStatus) ? myStatus : Status.UNKOWN;
+                order.Status = Enum.TryParse(dto.status, out Status myStatus) ? myStatus : Status.Pending;
                 await dbContext.SaveChangesAsync();
                 return Results.Ok();
             });

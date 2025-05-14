@@ -4,6 +4,8 @@
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
+    console.log({ email, password });
+
     const response = await fetch("/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

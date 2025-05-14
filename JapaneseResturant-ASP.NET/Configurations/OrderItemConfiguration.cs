@@ -12,15 +12,14 @@ namespace JapaneseRestaurantModel.Configurations
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
 
             builder.Property(x => x.Quantity).IsRequired();
-            
-            // OrderItem <=1-----1-> Dish
-            builder.HasOne(x => x.Dish)
-                .WithOne(x => x.OrderItem)
-                .HasForeignKey<OrderItem>(x => x.DishId)
-                .IsRequired();
-            builder.HasIndex(x => x.DishId).IsUnique(); // every OrderItem has one Dish (DishId in unique in the table)
 
-            // Order <=N----1=> OrderItem
+            // ✅ Many OrderItems -> One Dish
+            builder.HasOne(x => x.Dish)
+                .WithMany(x => x.OrderItems) // No navigation property on Dish side, or use .WithMany(x => x.OrderItems)
+                .HasForeignKey(x => x.DishId)
+                .IsRequired();
+
+            // ✅ Many OrderItems -> One Order
             builder.HasOne(x => x.Order)
                 .WithMany(x => x.OrderItem)
                 .HasForeignKey(x => x.OrderId)

@@ -17,15 +17,7 @@ namespace JapaneseRestaurantModel.Configurations
             builder.Property(x => x.Category).HasColumnType("VARCHAR").HasMaxLength(100).IsRequired();
             builder.Property(x=>x.PictureURL).HasColumnType("VARCHAR").HasMaxLength(255).IsRequired();
 
-            builder.HasData(LoadDishs());
         }
 
-        private static List<Dish> LoadDishs()
-        {
-            return new List<Dish>
-            {
-
-            };
-        }
     }
 }

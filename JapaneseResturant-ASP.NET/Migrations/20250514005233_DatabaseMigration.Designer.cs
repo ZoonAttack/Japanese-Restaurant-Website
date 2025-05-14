@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JapaneseResturant_ASP.NET.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250513152401_NoteMigration")]
-    partial class NoteMigration
+    [Migration("20250514005233_DatabaseMigration")]
+    partial class DatabaseMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -132,8 +132,7 @@ namespace JapaneseResturant_ASP.NET.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DishId")
-                        .IsUnique();
+                    b.HasIndex("DishId");
 
                     b.HasIndex("OrderId");
 
@@ -385,8 +384,8 @@ namespace JapaneseResturant_ASP.NET.Migrations
             modelBuilder.Entity("JapaneseRestaurantModel.Entities.OrderItem", b =>
                 {
                     b.HasOne("JapaneseRestaurantModel.Entities.Dish", "Dish")
-                        .WithOne("OrderItem")
-                        .HasForeignKey("JapaneseRestaurantModel.Entities.OrderItem", "DishId")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("DishId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -473,7 +472,7 @@ namespace JapaneseResturant_ASP.NET.Migrations
 
             modelBuilder.Entity("JapaneseRestaurantModel.Entities.Dish", b =>
                 {
-                    b.Navigation("OrderItem");
+                    b.Navigation("OrderItems");
 
                     b.Navigation("Reviews");
                 });

@@ -22,6 +22,11 @@ namespace JapaneseResturant_ASP.NET
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddApiEndpoints().AddDefaultTokenProviders();
+            builder.Services.Configure<IdentityOptions>(config =>
+            {
+                config.Password.RequiredUniqueChars = 0;
+                config.Password.RequireDigit = false;
+            });
             builder.Services.AddOpenApiDocument();
 
             var connstring = builder.Configuration.GetConnectionString("conn");

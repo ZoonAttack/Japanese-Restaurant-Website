@@ -2,7 +2,6 @@ document.getElementById("signupForm").addEventListener("submit", async function 
     e.preventDefault(); // Prevent default form submission
 
     const data = {
-        name: document.getElementById("name").value,
         email: document.getElementById("email").value,
         password: document.getElementById("password").value
     };
@@ -15,6 +14,7 @@ document.getElementById("signupForm").addEventListener("submit", async function 
         body: JSON.stringify(data)
     });
 
+
     if (response.ok) {
         console.log(data);
         // Assign role after registration (optional)
@@ -24,7 +24,7 @@ document.getElementById("signupForm").addEventListener("submit", async function 
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                name: data.name,
+                name: document.getElementById("name").value,
                 email: data.email,
                 role: "user" // Specify role to be assigned
             })

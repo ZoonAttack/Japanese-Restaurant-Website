@@ -14,7 +14,6 @@
     }
     public enum Status
     {
-        UNKOWN,
         Pending,
         In_Prgress,
         Ready,

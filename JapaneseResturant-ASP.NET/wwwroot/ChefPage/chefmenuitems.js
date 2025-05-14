@@ -1,59 +1,4 @@
-﻿async function regenerateToken() {
-    var refreshToken = sessionStorage.getItem("refreshToken");
-    console.log(refreshToken);
-    if (!refreshToken) {
-        alert("You need to login again!")
-        return;
-    }
-    const response = await fetch("/refresh", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken })
-    });
-
-    if (response.ok) {
-        // If the response is successful, get the new tokens
-        const responseBody = await response.json();
-        const newAccessToken = responseBody.accessToken;
-        const newRefreshToken = responseBody.refreshToken;
-
-        // Store the new tokens in sessionStorage
-        sessionStorage.setItem('accessToken', newAccessToken);
-        sessionStorage.setItem('refreshToken', newRefreshToken);
-
-        console.log("New access token and refresh token stored.");
-    } else {
-        // Handle the error (e.g., refresh token is invalid or expired)
-        alert("Unable to refresh tokens. Please log in again.");
-    }
-}
-async function authFetch(input, init = {}) {
-    let token = sessionStorage.getItem('accessToken');
-    console.log(token);
-    init.headers = {
-        ...(init.headers || {}),
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
-
-    let response = await fetch(input, init);
-    if (response.status !== 401) return response;
-
-    // Attempt token refresh once
-    await regenerateToken();
-    token = sessionStorage.getItem('accessToken');
-    init.headers['Authorization'] = `Bearer ${token}`;
-
-    response = await fetch(input, init);
-    if (response.status === 401) {
-        // Refresh failed → force logout
-        sessionStorage.clear();
-        window.location.replace("/SignIn/signin.html");
-    }
-    return response;
-}
+﻿import { authFetch, tokenCheck } from "/Modules/token.js";
 
 // Menu items data
 let menuItems = [];
@@ -63,16 +8,14 @@ let itemToDelete = null;
 
 
 async function init() {
-    console.log("at init function");
+    tokenCheck();
     await getMenuData()
     renderMenuItems();
     setupEventListeners();
 }
 // Initialize the page
-document.addEventListener('DOMContentLoaded', function () {
-    console.log("At event listener");
-    init();
-});
+document.addEventListener("DOMContentLoaded", init)
+
 async function getMenuData() {
     try {
         const response = await authFetch('getmenudata');
@@ -91,7 +34,6 @@ async function getMenuData() {
         alert("An error occurred while loading menu items.");
     }
 }
-// Render all menu items
 function renderMenuItems() {
     //console.log("at render function");
     const menuGrid = document.getElementById('menu-items');
@@ -119,7 +61,6 @@ function renderMenuItems() {
     });
 }
 
-// Set up event listeners
 function setupEventListeners() {
     // Edit form submission
     document.getElementById('editForm').addEventListener('submit', function(e) {
@@ -156,7 +97,6 @@ function setupEventListeners() {
     });
 }
 
-// Open edit popup with item data
 function openEditPopup(itemId) {
     const item = menuItems.find(i => i.id == itemId);
     if (!item) return;
@@ -168,7 +108,6 @@ function openEditPopup(itemId) {
     document.getElementById('editPopup').style.display = 'flex';
 }
 
-// Close edit popup
 function closeEditPopup() {
     document.getElementById('editPopup').style.display = 'none';
     document.getElementById('editForm').reset();
@@ -184,7 +123,7 @@ async function saveMenuItem() {
         name: document.getElementById('editItemName').value,
         price: parseFloat(document.getElementById('editItemPrice').value),
         description: document.getElementById('editItemDescription').value,
-        pictureURL: menuItems[itemIndex].pictureURL 
+        pictureURL: document.getElementById("editItemImage").value
     };
     console.log("Item to be updated:", payload);
     const response = await authFetch('updatedish', {
@@ -206,19 +145,16 @@ async function saveMenuItem() {
     }
 }
 
-// Show delete confirmation dialog
 function showDeleteConfirmation(itemId) {
     itemToDelete = itemId;
     document.getElementById('confirmationDialog').style.display = 'flex';
 }
 
-// Hide delete confirmation dialog
 function hideDeleteConfirmation() {
     itemToDelete = null;
     document.getElementById('confirmationDialog').style.display = 'none';
 }
 
-// Handle confirmed deletion
 async function deleteConfirmed() {
     if (itemToDelete) {
 
@@ -244,17 +180,14 @@ async function deleteConfirmed() {
     hideDeleteConfirmation();
 }
 
-// Show logout confirmation dialog
 function showLogoutConfirmation() {
     document.getElementById('logoutConfirmationDialog').style.display = 'flex';
 }
 
-// Hide logout confirmation dialog
 function hideLogoutConfirmation() {
     document.getElementById('logoutConfirmationDialog').style.display = 'none';
 }
 
-// Handle confirmed logout
 async function logoutConfirmed() {
     // Redirect to signin page
     const response = await authFetch("logout", {
@@ -273,7 +206,6 @@ async function logoutConfirmed() {
     }
 }
 
-// Show notification message
 function showNotification(message) {
     const notificationContainer = document.getElementById('notificationContainer');
     const notification = document.createElement('div');

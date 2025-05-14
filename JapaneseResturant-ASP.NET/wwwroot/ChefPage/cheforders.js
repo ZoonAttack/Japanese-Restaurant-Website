@@ -1,77 +1,22 @@
-﻿async function regenerateToken() {
-    var refreshToken = sessionStorage.getItem("refreshToken");
-    console.log(refreshToken);
-    if (!refreshToken) {
-        alert("You need to login again!")
-        return;
-    }
-    const response = await fetch("/refresh", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken })
-    });
-
-    if (response.ok) {
-        // If the response is successful, get the new tokens
-        const responseBody = await response.json();
-        const newAccessToken = responseBody.accessToken;
-        const newRefreshToken = responseBody.refreshToken;
-
-        // Store the new tokens in sessionStorage
-        sessionStorage.setItem('accessToken', newAccessToken);
-        sessionStorage.setItem('refreshToken', newRefreshToken);
-
-        console.log("New access token and refresh token stored.");
-    } else {
-        // Handle the error (e.g., refresh token is invalid or expired)
-        alert("Unable to refresh tokens. Please log in again.");
-    }
-}
-async function authFetch(input, init = {}) {
-    let token = sessionStorage.getItem('accessToken');
-    console.log(token);
-    init.headers = {
-        ...(init.headers || {}),
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
-
-    let response = await fetch(input, init);
-    if (response.status !== 401) return response;
-
-    // Attempt token refresh once
-    await regenerateToken();
-    token = sessionStorage.getItem('accessToken');
-    init.headers['Authorization'] = `Bearer ${token}`;
-
-    response = await fetch(input, init);
-    if (response.status === 401) {
-        // Refresh failed → force logout
-        sessionStorage.clear();
-        window.location.replace("/SignIn/signin.html");
-    }
-    return response;
-}
+﻿import { authFetch, tokenCheck } from "/Modules/token.js";
 
     // Sample orders data
 let orders = [];
 async function init() {
+    tokenCheck();
     await getOrders();
     renderOrders();
     setupEventListeners();
 }
 // Initialize the page
-document.addEventListener('DOMContentLoaded', function() {
-    init();
-});
+document.addEventListener("DOMContentLoaded", init)
+
 
 async function getOrders() {
     const response = await authFetch('getordersdata', {
 
         method: 'GET',
-        header: {
+        headers: {
             "Content-Type": "application/json"
         }
     })
@@ -149,17 +94,17 @@ function renderOrders(filter = 'all') {
             
             <div class="order-actions">
                 ${order.status !== 'Pending' ? '' : `
-                    <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'preparing')" 
+                    <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'In_Prgress')" 
                         style="background-color: #da0037; color: white;">Confirm Order</button>
                 `}
                 
-                ${order.status !== 'Preparing' ? '' : `
-                    <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'ready')" 
+                ${order.status !== 'In_Prgress' ? '' : `
+                    <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'Ready')" 
                         style="background-color: #28a745; color: white;">Mark as Ready</button>
                 `}
                 
                 ${order.status !== 'Ready' ? '' : `
-                    <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'completed')" 
+                    <button class="status-btn-small" onclick="updateOrderStatus(${order.id}, 'Completed')" 
                         style="background-color: #6c757d; color: white;">Complete Order</button>
                 `}
             </div>
@@ -180,15 +125,18 @@ function filterOrders(status) {
     renderOrders(status);
 }
 
+
 // Update order status
 async function updateOrderStatus(orderId, newStatus) {
+    //var newStatus = getStatus(orderId);
+    console.log(newStatus);
     const response = await authFetch('updateorderstatus', {
 
         method: 'POST',
-        header: {
+        headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({orderId, newStatus})
+        body: JSON.stringify({orderId, status: newStatus})
     })
     if (response.ok) {
         location.reload();
@@ -197,7 +145,21 @@ async function updateOrderStatus(orderId, newStatus) {
         showNotification('something went wrong', response.text());
     }
 }
+//async function getStatus(orderId) {
+//    var status;
+//    const response = await authFetch('getnextstatus', {
 
+//        method: 'GET',
+//        headers: {
+//            "Content-Type": "application/json"
+//        },
+//        body: orderId
+//    })
+//    if (response.ok) {
+//        return await response.json();
+//    }
+//    return null;
+//}
 // Show notification
 function showNotification(message) {
     const notificationContainer = document.getElementById('notificationContainer');
@@ -218,7 +180,7 @@ async function logoutConfirmed() {
     const response = await authFetch('logout', {
 
         method: 'POST',
-        header: {
+        headers: {
             "Content-Type": "application/json"
         }
     })

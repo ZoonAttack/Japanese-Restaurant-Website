@@ -1,58 +1,4 @@
-async function regenerateToken() {
-    var refreshToken = sessionStorage.getItem("refreshToken");
-
-    if (!refreshToken) {
-        alert("You need to login again!")
-        return;
-    }
-    const response = await fetch("/refresh", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken })
-    });
-
-    if (response.ok) {
-        // If the response is successful, get the new tokens
-        const responseBody = await response.json();
-        const newAccessToken = responseBody.accessToken;
-        const newRefreshToken = responseBody.refreshToken;
-
-        // Store the new tokens in sessionStorage
-        sessionStorage.setItem('accessToken', newAccessToken);
-        sessionStorage.setItem('refreshToken', newRefreshToken);
-
-        console.log("New access token and refresh token stored.");
-    } else {
-        // Handle the error (e.g., refresh token is invalid or expired)
-        alert("Unable to refresh tokens. Please log in again.");
-    }
-}
-async function authFetch(input, init = {}) {
-    let token = sessionStorage.getItem('accessToken');
-    init.headers = {
-        ...(init.headers || {}),
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
-
-    let response = await fetch(input, init);
-    if (response.status !== 401) return response;
-
-    // Attempt token refresh once
-    await regenerateToken();
-    token = sessionStorage.getItem('accessToken');
-    init.headers['Authorization'] = `Bearer ${token}`;
-
-    response = await fetch(input, init);
-    if (response.status === 401) {
-        // Refresh failed → force logout
-        sessionStorage.clear();
-        window.location.replace("/SignIn/signin.html");
-    }
-    return response;
-}
+import { authFetch, tokenCheck } from "/Modules/token.js";
 
 // DOM Elements
 const orders = document.getElementById("ordersList")
@@ -93,11 +39,7 @@ let orderToReorder = null
 
 // Initialize the page
 async function init() {
-    const accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken) {
-        window.location.replace('/SignIn/signin.html');  // no token → redirect
-        return;
-    }
+    tokenCheck();
     await loadOrders()
     setupEventListeners()
 }
@@ -362,7 +304,7 @@ function showReorderConfirmation(order) {
         hideOrderModal()
     }
 
-    if (order.status !== "Pending") {
+    if (order.status !== "Pending" && order.status !== "Completed") {
         alert("Order is already being made!")
         return
     }

@@ -34,8 +34,8 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 User? user = await userManager.FindByEmailAsync(dto.Email);
 
                 if (user == null) return Results.BadRequest("User does not exist");
+                //user.UserName = dto.Name;
                 await userManager.AddToRoleAsync(user, dto.Role);
-
                 if (await userManager.IsInRoleAsync(user, dto.Role))
                 {
                     return Results.Ok("User was added successfully");

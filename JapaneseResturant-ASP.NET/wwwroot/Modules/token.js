@@ -1,6 +1,6 @@
 ﻿async function regenerateToken() {
     var refreshToken = sessionStorage.getItem("refreshToken");
-
+    console.log(refreshToken);
     if (!refreshToken) {
         alert("You need to login again!")
         return;
@@ -29,8 +29,9 @@
         alert("Unable to refresh tokens. Please log in again.");
     }
 }
-async function authFetch(input, init = {}) {
+export async function authFetch(input, init = {}) {
     let token = sessionStorage.getItem('accessToken');
+    console.log(token);
     init.headers = {
         ...(init.headers || {}),
         'Authorization': `Bearer ${token}`,
@@ -49,8 +50,15 @@ async function authFetch(input, init = {}) {
     if (response.status === 401) {
         // Refresh failed → force logout
         sessionStorage.clear();
-        window.location.replace('/SignIn/signin.html');
+        window.location.replace("/SignIn/signin.html");
     }
     return response;
 }
-export { authFetch };
+
+export function tokenCheck() {
+    const accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+        window.location.replace('/SignIn/signin.html');  // no token → redirect
+        return;
+    }
+}

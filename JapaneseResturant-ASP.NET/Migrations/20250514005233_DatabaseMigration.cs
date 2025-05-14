@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace JapaneseResturant_ASP.NET.Migrations
 {
     /// <inheritdoc />
-    public partial class NoteMigration : Migration
+    public partial class DatabaseMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -299,8 +299,7 @@ namespace JapaneseResturant_ASP.NET.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_DishId",
                 table: "OrderItems",
-                column: "DishId",
-                unique: true);
+                column: "DishId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",

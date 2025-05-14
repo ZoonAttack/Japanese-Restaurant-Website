@@ -129,8 +129,7 @@ namespace JapaneseResturant_ASP.NET.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DishId")
-                        .IsUnique();
+                    b.HasIndex("DishId");
 
                     b.HasIndex("OrderId");
 
@@ -382,8 +381,8 @@ namespace JapaneseResturant_ASP.NET.Migrations
             modelBuilder.Entity("JapaneseRestaurantModel.Entities.OrderItem", b =>
                 {
                     b.HasOne("JapaneseRestaurantModel.Entities.Dish", "Dish")
-                        .WithOne("OrderItem")
-                        .HasForeignKey("JapaneseRestaurantModel.Entities.OrderItem", "DishId")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("DishId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -470,7 +469,7 @@ namespace JapaneseResturant_ASP.NET.Migrations
 
             modelBuilder.Entity("JapaneseRestaurantModel.Entities.Dish", b =>
                 {
-                    b.Navigation("OrderItem");
+                    b.Navigation("OrderItems");
 
                     b.Navigation("Reviews");
                 });

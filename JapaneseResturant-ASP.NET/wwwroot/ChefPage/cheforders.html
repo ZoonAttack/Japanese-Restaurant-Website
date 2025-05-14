@@ -22,16 +22,16 @@
     <!-- Orders Container -->
     <div class="orders-container">
         <h1 class="page-title">Order Management</h1>
-        
+
         <!-- Status Filter -->
         <div class="status-filter">
             <button class="status-btn active" onclick="filterOrders('all')">All Orders</button>
-            <button class="status-btn" onclick="filterOrders('pending')">Pending</button>
-            <button class="status-btn" onclick="filterOrders('preparing')">Preparing</button>
-            <button class="status-btn" onclick="filterOrders('ready')">Ready</button>
-            <button class="status-btn" onclick="filterOrders('completed')">Completed</button>
+            <button class="status-btn" onclick="filterOrders('Pending')">Pending</button>
+            <button class="status-btn" onclick="filterOrders('In_Prgress')">Preparing</button>
+            <button class="status-btn" onclick="filterOrders('Ready')">Ready</button>
+            <button class="status-btn" onclick="filterOrders('Completed')">Completed</button>
         </div>
-        
+
         <!-- Orders List -->
         <div id="ordersList">
             <!-- Orders will be populated by JavaScript -->
@@ -43,7 +43,7 @@
         <div class="confirmation-content">
             <div class="confirmation-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M17 7L15.59 8.41L18.17 11H8V13H18.17L15.59 15.58L17 17L22 12L17 7ZM4 5H12V3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H12V19H4V5Z" fill="#da0037"/>
+                    <path d="M17 7L15.59 8.41L18.17 11H8V13H18.17L15.59 15.58L17 17L22 12L17 7ZM4 5H12V3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H12V19H4V5Z" fill="#da0037" />
                 </svg>
             </div>
             <h3 class="confirmation-title">Log Out</h3>
@@ -58,6 +58,8 @@
     <!-- Notification Container -->
     <div id="notificationContainer"></div>
 
-    <script src="/ChefPage/cheforders.js"></script>
+    <script type="module" src="/ChefPage/cheforders.js"></script>
+
+
 </body>
 </html>

@@ -12,7 +12,7 @@
         public string? Category { get; set; }
         public double Rating { get; set; }
 
-        public OrderItem? OrderItem { get; set; } // optional
+        public ICollection<OrderItem>? OrderItems { get; set; } // optional
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }
