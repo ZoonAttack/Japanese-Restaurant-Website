@@ -16,7 +16,6 @@ document.getElementById("signupForm").addEventListener("submit", async function 
 
 
     if (response.ok) {
-        console.log(data);
         // Assign role after registration (optional)
         const res = await fetch("/assignrole", {
             method: "POST",
@@ -24,7 +23,6 @@ document.getElementById("signupForm").addEventListener("submit", async function 
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                name: document.getElementById("name").value,
                 email: data.email,
                 role: "user" // Specify role to be assigned
             })
@@ -33,9 +31,9 @@ document.getElementById("signupForm").addEventListener("submit", async function 
         if (res.ok) {
             window.location.replace("/SignIn/signin.html");
         } else {
-            window.alert("Role assignment failed: " + res.statusText);
+            console.log("Role assignment failed: " + res.statusText);
         }
     } else {
-        window.alert("Registration failed: " + response.statusText);
+        console.log("Registration failed: " + response.statusText);
     }
 });

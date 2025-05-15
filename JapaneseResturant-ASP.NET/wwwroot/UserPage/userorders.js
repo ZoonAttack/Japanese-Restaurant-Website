@@ -126,16 +126,14 @@ async function getOrders() {
 
         if (!response.ok) {
             const errorText = await response.json();
-            console.log("Error response:", errorText);
             alert(errorText);
         } else {
             const userData = await response.json();
-            console.log("Fetched user data:", userData);
 
             return userData;
         }
     } catch (error) {
-        console.log("Network or fetch error:", error);
+        //console.log("Network or fetch error:", error);
         alert("An error occurred while fetching orders.");
     }
 }
@@ -343,7 +341,6 @@ function hideReorderModal() {
 
 // Confirm reorder and add items to cart
 async function confirmReorderItems() {
-    console.log(orderToReorder);
     if (orderToReorder) {
         const payload = {
             date: new Date().toISOString(),
@@ -368,9 +365,9 @@ async function confirmReorderItems() {
                 throw new Error('Failed to checkout');
             }
 
-            console.log('Checkout successful:', payload);
+            alert("Success")
         } catch (error) {
-            console.error('Checkout error:', error);
+            //console.error('Checkout error:', error);
         }
         hideReorderModal()
         location.reload();

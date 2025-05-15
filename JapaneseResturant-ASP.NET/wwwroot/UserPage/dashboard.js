@@ -224,7 +224,6 @@ function removeFromCart(itemId) {
 
 // Update cart UI
 function updateCart() {
-    //console.log("(at updateCart) cart: ", cart);
     // Update cart counter
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
     cartCounter.textContent = totalItems;
@@ -397,7 +396,6 @@ async function checkout() {
 
         alert('Thank you for your order!');
         toggleCart();
-        //console.log('Checkout successful:', data);
         cart = [];
         updateCart();
     } catch (error) {

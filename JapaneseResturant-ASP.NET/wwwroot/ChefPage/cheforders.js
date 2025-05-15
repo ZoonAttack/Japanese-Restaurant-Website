@@ -23,8 +23,7 @@ async function getOrders() {
     if (response.ok) {
 
         orders = await response.json();
-        console.log(orders);
-        renderOrders();
+=        renderOrders();
     }
     else {
         showNotification('something went wrong', response.text());
@@ -128,9 +127,7 @@ function filterOrders(status) {
 
 // Update order status
 async function updateOrderStatus(orderId, newStatus) {
-    //var newStatus = getStatus(orderId);
-    console.log(newStatus);
-    const response = await authFetch('updateorderstatus', {
+=    const response = await authFetch('updateorderstatus', {
 
         method: 'POST',
         headers: {

@@ -4,8 +4,6 @@
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    console.log({ email, password });
-
     const response = await fetch("/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -19,10 +17,6 @@
         sessionStorage.setItem("accessToken", data.accessToken);
         sessionStorage.setItem("refreshToken", data.refreshToken);
 
-        // Optional: log the token to debug
-        // console.log("accessToken:", data.accessToken);
-        // console.log("refreshToken:", data.refreshToken);
-
         // If login is successful, fetch the user's roles
         const res = await fetch("/me", {
             method: "GET",
@@ -33,7 +27,6 @@
         });
 
         const userData = await res.json();
-        //console.log(userData);
         if (userData.roles.includes("user")) {
             window.location.replace("/UserPage/dashboard.html");
         }

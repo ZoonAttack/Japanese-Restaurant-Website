@@ -28,19 +28,16 @@ async function getMenuData() {
 
         let items = await response.json();
         menuItems = items; // Save globally if needed
-        console.log(menuItems);
     } catch (error) {
         console.error("Failed to load menu items:", error);
         alert("An error occurred while loading menu items.");
     }
 }
 function renderMenuItems() {
-    //console.log("at render function");
     const menuGrid = document.getElementById('menu-items');
     menuGrid.innerHTML = '';
     
     menuItems.forEach(item => {
-        console.log('inside foreach', item);
         const itemElement = document.createElement('div');
         itemElement.className = 'menu-item';
         itemElement.dataset.id = item.id;
@@ -123,9 +120,8 @@ async function saveMenuItem() {
         name: document.getElementById('editItemName').value,
         price: parseFloat(document.getElementById('editItemPrice').value),
         description: document.getElementById('editItemDescription').value,
-        pictureURL: document.getElementById("editItemImage").value
+        pictureURL: document.getElementById("editItemImage").value ? document.getElementById("editItemImage").value : menuItems[itemIndex].pictureURL
     };
-    console.log("Item to be updated:", payload);
     const response = await authFetch('updatedish', {
 
         method: 'POST',
