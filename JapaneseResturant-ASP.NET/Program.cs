@@ -4,6 +4,7 @@ using JapaneseResturant_ASP.NET.Endpoints;
 using JapaneseResturant_ASP.NET.Extentions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using static System.Formats.Asn1.AsnWriter;
 
 namespace JapaneseResturant_ASP.NET
@@ -58,6 +59,12 @@ namespace JapaneseResturant_ASP.NET
                 var services = scope.ServiceProvider;
                 await SeedRolesAsync(services);
             }
+            app.MapGet("", (context) =>
+            {
+                context.Response.Redirect("/index.html");
+                return Task.CompletedTask;
+            });
+
             app.Run();
 
         }

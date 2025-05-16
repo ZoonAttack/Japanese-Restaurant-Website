@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <script>
+        // Redirect logic
+        window.onload = async function () {
+            const token = sessionStorage.getItem("accessToken");
+            if (token != null) {
+                try {
+                    const res = await fetch("/me", {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
+
+                    if (!res.ok) {
+                        throw new Error("Unauthorized or fetch error");
+                    }
+
+                    const userData = await res.json();
+
+                    if (userData.roles.includes("user")) {
+                        window.location.replace("/UserPage/dashboard.html");
+                        return;
+                    } else {
+                        window.location.replace("/ChefPage/chefmenuitems.html");
+                        return;
+                    }
+                } catch (err) {
+                    alert("Fetch error or invalid token:" +  err);
+                }
+            }
+
+            // If token is null or fetch fails
+            window.location.replace("/SignIn/signin.html");
+        };
+
+    </script>
+</head>
+<body>
+    <p>Checking login status...</p>
+</body>
+</html>

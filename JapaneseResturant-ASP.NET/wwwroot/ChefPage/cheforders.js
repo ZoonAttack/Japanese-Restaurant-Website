@@ -142,22 +142,6 @@ async function updateOrderStatus(orderId, newStatus) {
         showNotification('something went wrong', response.text());
     }
 }
-//async function getStatus(orderId) {
-//    var status;
-//    const response = await authFetch('getnextstatus', {
-
-//        method: 'GET',
-//        headers: {
-//            "Content-Type": "application/json"
-//        },
-//        body: orderId
-//    })
-//    if (response.ok) {
-//        return await response.json();
-//    }
-//    return null;
-//}
-// Show notification
 function showNotification(message) {
     const notificationContainer = document.getElementById('notificationContainer');
     const notification = document.createElement('div');

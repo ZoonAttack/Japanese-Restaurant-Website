@@ -51,6 +51,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                         .Where(o => o.UserId == userId)
                         .Select(o => new OrderDetailsDto(
                             o.Id,
+                            o.Note,
                             o.User.UserName!,
                             o.Status.ToString(),              
                             o.OrderDate,                      

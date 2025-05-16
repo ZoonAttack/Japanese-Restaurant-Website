@@ -37,6 +37,7 @@ namespace JapaneseResturant_ASP.NET.Endpoints
                 var query =  await dbContext.Orders.Select(order => new OrderDetailsDto(
 
                     order.Id,
+                    order.Note,
                     order.User.UserName!,
                     order.Status.ToString(),
                     order.OrderDate,

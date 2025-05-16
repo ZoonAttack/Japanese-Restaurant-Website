@@ -133,8 +133,8 @@ async function getOrders() {
             return userData;
         }
     } catch (error) {
-        //console.log("Network or fetch error:", error);
-        alert("An error occurred while fetching orders.");
+        showError('something went wrong', error);
+
     }
 }
 
@@ -303,7 +303,7 @@ function showReorderConfirmation(order) {
     }
 
     if (order.status !== "Pending" && order.status !== "Completed") {
-        alert("Order is already being made!")
+        showError("Order already being made!");
         return
     }
 
@@ -367,7 +367,7 @@ async function confirmReorderItems() {
 
             alert("Success")
         } catch (error) {
-            //console.error('Checkout error:', error);
+            showError('something went wrong', error);
         }
         hideReorderModal()
         location.reload();
@@ -454,7 +454,8 @@ async function handleLogout() {
         sessionStorage.clear();
         window.location.replace("/SignIn/signin.html")
     } else {
-        alert(await response.text())
+        showError('something went wrong', await response.text());
+
     }
 }
 

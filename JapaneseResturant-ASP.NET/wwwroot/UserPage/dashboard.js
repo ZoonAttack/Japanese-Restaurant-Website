@@ -87,8 +87,7 @@ function showIngredients(title, ingredients) {
         // Show the modal
         modal.classList.add('active');
     } catch (error) {
-        console.error("Error displaying ingredients modal:", error);
-        alert("Could not display ingredients. Please try again later.");
+        showError('something went wrong', response.text());
     }
 }
 
@@ -137,7 +136,7 @@ function renderMenuItems() {
             });
         });
     } catch (error) {
-        console.error("Error rendering menu items:", error);
+        showError('something went wrong', response.text());
         menuGrid.innerHTML = `<p class="error-message">Failed to load menu items. Please try again later.</p>`;
     }
 }
@@ -149,7 +148,7 @@ function setupEventListeners() {
     closeCart.addEventListener('click', toggleCart);
 
     // Checkout button
-    checkoutBtn.addEventListener('click', checkout);
+    checkoutBtn.addEventListener("click", checkout);
 
     // Mobile menu toggle
     mobileMenuBtn.addEventListener('click', toggleMobileMenu);
@@ -362,7 +361,7 @@ async function handleLogout() {
         window.location.replace("/SignIn/signin.html")
     }
     else {
-        alert(response.text())
+        showError('something went wrong', response.text());
     }
 }
 
@@ -373,7 +372,7 @@ async function checkout() {
     //Need to add note! and a widget to enter the note when checkout is pressed
     const payload = {
         date: currentDate,
-        note: "crazy work",
+        note: document.getElementById("noteInput").value,
         items: cart.map(item => ({
             productId: item.id,
             name: item.name,
@@ -382,7 +381,7 @@ async function checkout() {
         })),
         total: totalPrice
     };
-
+    console.log(payload.note);
     try {
         const res = await authFetch('updateorders', {
             method: 'POST',
@@ -399,7 +398,7 @@ async function checkout() {
         cart = [];
         updateCart();
     } catch (error) {
-        console.error('Checkout error:', error);
+        showError('something went wrong', error);
     }
 }
 
@@ -447,8 +446,7 @@ async function getMenuData() {
         //});
 
     } catch (error) {
-        console.error("Failed to load menu items:", error);
-        alert("An error occurred while loading menu items.");
+        showError('something went wrong', error);
     }
 }
 // Initialize the page
