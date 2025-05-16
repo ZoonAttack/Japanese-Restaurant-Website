@@ -66,3 +66,15 @@ export function showError(message) {
     errorBox.textContent = message;
     errorBox.style.display = "block";
 }
+export function showPopup(message) {
+    document.getElementById('popup-message').innerText = message;
+    document.getElementById('popup-overlay').style.display = 'block';
+
+    // Auto-close the popup after ~seconds
+    setTimeout(closePopup, 1000);
+}
+
+
+function closePopup() {
+    document.getElementById('popup-overlay').style.display = 'none';
+}

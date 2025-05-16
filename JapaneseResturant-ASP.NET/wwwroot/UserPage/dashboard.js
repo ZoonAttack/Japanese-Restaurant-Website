@@ -1,4 +1,4 @@
-import { authFetch, tokenCheck } from "/Modules/token.js";
+import { authFetch, tokenCheck, showPopup} from "/Modules/token.js";
 
 let cart = []
 let menuItems = []; 
@@ -393,7 +393,7 @@ async function checkout() {
             throw new Error('Failed to checkout');
         }
 
-        alert('Thank you for your order!');
+        showPopup("Thank you for your order");
         toggleCart();
         cart = [];
         updateCart();
