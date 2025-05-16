@@ -1,4 +1,4 @@
-import { authFetch, tokenCheck } from "/Modules/token.js";
+import { authFetch, tokenCheck } from "/Modules/extentions.js";
 
 // DOM Elements
 const orders = document.getElementById("ordersList")

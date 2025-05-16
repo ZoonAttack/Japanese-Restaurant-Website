@@ -1,4 +1,4 @@
-﻿import { authFetch, tokenCheck } from "/Modules/token.js";
+﻿import { authFetch, tokenCheck } from "/Modules/extentions.js";
 
 // Menu items data
 let menuItems = [];

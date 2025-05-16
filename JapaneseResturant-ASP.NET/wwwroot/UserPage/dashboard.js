@@ -1,4 +1,4 @@
-import { authFetch, tokenCheck, showPopup} from "/Modules/token.js";
+import { authFetch, tokenCheck, showPopup} from "/Modules/extentions.js";
 
 let cart = []
 let menuItems = []; 
