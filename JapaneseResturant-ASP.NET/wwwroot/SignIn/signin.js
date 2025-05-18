@@ -34,7 +34,6 @@
             window.location.replace("/ChefPage/chefmenuitems.html");
         }
     } else {
-        const error = await response.text();
-        alert("Login failed: " + error);
+        alert("Login failed: " + response.statusText);
     }
 });

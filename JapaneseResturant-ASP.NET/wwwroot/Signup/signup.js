@@ -34,6 +34,6 @@ document.getElementById("signupForm").addEventListener("submit", async function 
             console.log("Role assignment failed: " + res.statusText);
         }
     } else {
-        alert("Registration failed: " + response.text());
+        alert("Registration failed: " + response.statusText());
     }
 });
