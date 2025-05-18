@@ -87,7 +87,7 @@ function showIngredients(title, ingredients) {
         // Show the modal
         modal.classList.add('active');
     } catch (error) {
-        showError('something went wrong', response.text());
+        showPopup('something went wrong', response.text());
     }
 }
 
@@ -136,7 +136,7 @@ function renderMenuItems() {
             });
         });
     } catch (error) {
-        showError('something went wrong', response.text());
+        showPopup('something went wrong', response.text());
         menuGrid.innerHTML = `<p class="error-message">Failed to load menu items. Please try again later.</p>`;
     }
 }
@@ -361,7 +361,7 @@ async function handleLogout() {
         window.location.replace("/SignIn/signin.html")
     }
     else {
-        showError('something went wrong', response.text());
+        showPopup('something went wrong', response.text());
     }
 }
 
@@ -398,7 +398,7 @@ async function checkout() {
         cart = [];
         updateCart();
     } catch (error) {
-        showError('something went wrong', error);
+        showPopup('something went wrong', error);
     }
 }
 
@@ -446,7 +446,7 @@ async function getMenuData() {
         //});
 
     } catch (error) {
-        showError('something went wrong', error);
+        showPopup('something went wrong', error);
     }
 }
 // Initialize the page

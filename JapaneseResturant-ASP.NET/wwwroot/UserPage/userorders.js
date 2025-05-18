@@ -1,4 +1,4 @@
-import { authFetch, tokenCheck } from "/Modules/extentions.js";
+import { authFetch, tokenCheck, showPopup } from "/Modules/extentions.js";
 
 // DOM Elements
 const orders = document.getElementById("ordersList")
@@ -133,7 +133,7 @@ async function getOrders() {
             return userData;
         }
     } catch (error) {
-        showError('something went wrong', error);
+        showPopup('something went wrong', error);
 
     }
 }
@@ -303,7 +303,7 @@ function showReorderConfirmation(order) {
     }
 
     if (order.status !== "Pending" && order.status !== "Completed") {
-        showError("Order already being made!");
+        showPopup("Order already being made!");
         return
     }
 
@@ -367,7 +367,7 @@ async function confirmReorderItems() {
 
             alert("Success")
         } catch (error) {
-            showError('something went wrong', error);
+            showPopup('something went wrong', error);
         }
         hideReorderModal()
         location.reload();
@@ -454,7 +454,7 @@ async function handleLogout() {
         sessionStorage.clear();
         window.location.replace("/SignIn/signin.html")
     } else {
-        showError('something went wrong', await response.text());
+        showPopup('something went wrong', await response.text());
 
     }
 }
